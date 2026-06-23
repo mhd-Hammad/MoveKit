@@ -1,0 +1,19 @@
+{
+  "mcpServers": {
+    "shadcn": {
+      "command": "npx",
+      "args": ["-y", "@jpisnice/shadcn-ui-mcp-server"],
+      "disabled": false,
+      "autoApprove": []
+    },
+    "21st-magic": {
+      "command": "npx",
+      "args": ["-y", "@21st-dev/magic@latest"],
+      "env": {
+        "TWENTY_FIRST_API_KEY": "f925ab31cca8935898a7ded8ba369ca1ccb080f0fd40850645344aae616dbc06"
+      },
+      "disabled": false,
+      "autoApprove": []
+    }
+  }
+}
