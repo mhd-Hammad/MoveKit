@@ -7,7 +7,7 @@ This implementation plan builds the Campus Relocation Network — an AI-powered,
 ## Tasks
 
 - [ ] 1. Project scaffolding and core infrastructure
-  - [x] 1.1 Initialize Next.js 14 project with TypeScript, Tailwind CSS, and configure `tsconfig.json`, `next.config.js`, `tailwind.config.ts`, and `.env.example` with all required environment variable placeholders (SUPABASE_URL, SUPABASE_ANON_KEY, SUPABASE_SERVICE_ROLE_KEY, GROQ_API_KEY, GMAIL_USER, GMAIL_PASS, NEXT_PUBLIC_SOCKET_URL)
+  - [ ] 1.1 Initialize Next.js 14 project with TypeScript, Tailwind CSS, and configure `tsconfig.json`, `next.config.js`, `tailwind.config.ts`, and `.env.example` with all required environment variable placeholders (SUPABASE_URL, SUPABASE_ANON_KEY, SUPABASE_SERVICE_ROLE_KEY, GROQ_API_KEY, GMAIL_USER, GMAIL_PASS, NEXT_PUBLIC_SOCKET_URL)
     - Create project root structure matching the design's file/folder layout
     - Install core dependencies: next@14, @supabase/supabase-js, socket.io, socket.io-client, nodemailer, groq-sdk, leaflet, react-leaflet, zustand, react-hook-form, zod, framer-motion, bcryptjs
     - Install dev dependencies: vitest, fast-check, @types/node, @types/bcryptjs, @types/nodemailer
