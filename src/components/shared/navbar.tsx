@@ -10,6 +10,8 @@ const navLinks = [
   { href: "/blueprint", label: "Blueprint", icon: "📋" },
   { href: "/marketplace", label: "Marketplace", icon: "🛍️" },
   { href: "/matching", label: "Matches", icon: "🔗" },
+  { href: "/chat", label: "Chat", icon: "💬" },
+  { href: "/deals", label: "Deals", icon: "🤝" },
 ]
 
 export function Navbar() {
