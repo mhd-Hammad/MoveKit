@@ -91,17 +91,22 @@ export async function POST(
         { user_id: deal.seller_id, event_type: 'deal_completed', points: 5, reference_id: dealId },
       ])
 
-      // Update trust scores
-      await supabase.rpc('increment_trust_score', { uid: deal.buyer_id, amount: 5 }).catch(() => {
-        // Fallback: direct update
-        supabase.from('users').update({ trust_score: deal.buyer_id }).eq('id', deal.buyer_id)
-      })
+      // Update trust scores (fetch current, increment)
+      const { data: buyerUser } = await supabase.from('users').select('trust_score').eq('id', deal.buyer_id).single()
+      const { data: sellerUser } = await supabase.from('users').select('trust_score').eq('id', deal.seller_id).single()
 
-      // Create deal badges
+      if (buyerUser) {
+        await supabase.from('users').update({ trust_score: buyerUser.trust_score + 5 }).eq('id', deal.buyer_id)
+      }
+      if (sellerUser) {
+        await supabase.from('users').update({ trust_score: sellerUser.trust_score + 5 }).eq('id', deal.seller_id)
+      }
+
+      // Create deal badges (ignore duplicates via unique constraint)
       await supabase.from('deal_badges').insert([
         { user_id: deal.buyer_id, deal_id: dealId, tier: 'free' },
         { user_id: deal.seller_id, deal_id: dealId, tier: 'free' },
-      ]).catch(() => { /* unique constraint handles duplicates */ })
+      ])
     }
 
     return NextResponse.json({

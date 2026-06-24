@@ -6,7 +6,8 @@
  * Supabase table seeded from an open dataset.
  */
 
-// Common university email domain suffixes
+// Common university email domain suffixes (used for production DB validation)
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const UNIVERSITY_TLDS = [
   '.edu',
   '.ac.uk',
