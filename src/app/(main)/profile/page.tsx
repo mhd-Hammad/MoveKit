@@ -11,11 +11,27 @@ export default function ProfilePage() {
     email: string
     display_name: string
     trust_score: number
+    trust_breakdown?: { identity_trust: number; location_trust: number; behavior_trust: number; interaction_trust: number }
+    is_new_user?: boolean
   } | null>(null)
 
   useEffect(() => {
     const stored = localStorage.getItem("movekit_user")
-    if (stored) setUser(JSON.parse(stored))
+    if (stored) {
+      const parsed = JSON.parse(stored)
+      setUser(parsed)
+      // Fetch latest trust data from API
+      if (parsed.id) {
+        fetch(`/api/trust/${parsed.id}`)
+          .then(r => r.json())
+          .then(data => {
+            if (data.total !== undefined) {
+              setUser((prev: typeof parsed) => prev ? { ...prev, trust_score: data.total, trust_breakdown: data.breakdown, is_new_user: data.is_new_user } : prev)
+            }
+          })
+          .catch(() => {})
+      }
+    }
   }, [])
 
   if (!user) {
@@ -62,24 +78,24 @@ export default function ProfilePage() {
             <div className="flex-1 space-y-2">
               <div className="flex justify-between text-sm">
                 <span className="text-muted-foreground">Identity Trust</span>
-                <span className="font-medium">20 pts</span>
+                <span className="font-medium">{user.trust_breakdown?.identity_trust ?? 20} pts</span>
               </div>
               <div className="h-2 rounded-full bg-muted overflow-hidden">
-                <div className="h-full bg-primary rounded-full" style={{ width: "66%" }} />
+                <div className="h-full bg-primary rounded-full" style={{ width: `${Math.min(100, ((user.trust_breakdown?.identity_trust ?? 20) / 30) * 100)}%` }} />
               </div>
               <div className="flex justify-between text-sm">
                 <span className="text-muted-foreground">Location Trust</span>
-                <span className="font-medium">0 pts</span>
+                <span className="font-medium">{user.trust_breakdown?.location_trust ?? 0} pts</span>
               </div>
               <div className="h-2 rounded-full bg-muted overflow-hidden">
-                <div className="h-full bg-primary rounded-full" style={{ width: "0%" }} />
+                <div className="h-full bg-primary rounded-full" style={{ width: `${Math.min(100, ((user.trust_breakdown?.location_trust ?? 0) / 10) * 100)}%` }} />
               </div>
               <div className="flex justify-between text-sm">
                 <span className="text-muted-foreground">Behavior Trust</span>
-                <span className="font-medium">0 pts</span>
+                <span className="font-medium">{user.trust_breakdown?.behavior_trust ?? 0} pts</span>
               </div>
               <div className="h-2 rounded-full bg-muted overflow-hidden">
-                <div className="h-full bg-primary rounded-full" style={{ width: "0%" }} />
+                <div className="h-full bg-primary rounded-full" style={{ width: `${Math.min(100, ((user.trust_breakdown?.behavior_trust ?? 0) / 50) * 100)}%` }} />
               </div>
             </div>
           </div>

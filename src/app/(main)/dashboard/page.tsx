@@ -1,16 +1,23 @@
 "use client"
 
+import { useEffect, useState } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
 
 export default function DashboardPage() {
+  const [user, setUser] = useState<{ id: string; display_name: string; email: string; trust_score: number } | null>(null)
+
+  useEffect(() => {
+    const stored = localStorage.getItem("movekit_user")
+    if (stored) setUser(JSON.parse(stored))
+  }, [])
   return (
     <div className="space-y-6">
       {/* Welcome */}
       <div>
-        <h1 className="text-2xl font-bold">Welcome back 👋</h1>
+        <h1 className="text-2xl font-bold">Welcome{user ? `, ${user.display_name}` : ""} 👋</h1>
         <p className="text-muted-foreground">
           Here&apos;s your relocation overview.
         </p>
@@ -98,7 +105,7 @@ export default function DashboardPage() {
         <CardContent>
           <div className="flex items-center gap-4">
             <div className="flex h-16 w-16 items-center justify-center rounded-full bg-primary/10 text-2xl font-bold text-primary">
-              20
+              {user?.trust_score ?? 20}
             </div>
             <div className="text-sm text-muted-foreground">
               <p>Identity Trust: <span className="font-medium text-foreground">20 pts</span> (email verified)</p>
