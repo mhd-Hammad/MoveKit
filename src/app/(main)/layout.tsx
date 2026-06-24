@@ -1,7 +1,16 @@
+import { Navbar } from "@/components/shared/navbar"
+
 export default function MainLayout({
   children,
 }: {
-  children: React.ReactNode;
+  children: React.ReactNode
 }) {
-  return <div className="min-h-screen">{children}</div>;
+  return (
+    <div className="min-h-screen">
+      <Navbar />
+      <main className="container mx-auto px-6 py-6">
+        {children}
+      </main>
+    </div>
+  )
 }

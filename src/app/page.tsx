@@ -1,101 +1,159 @@
-import Image from "next/image";
+"use client"
 
-export default function Home() {
+import Link from "next/link"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent } from "@/components/ui/card"
+import { Badge } from "@/components/ui/badge"
+
+const features = [
+  {
+    icon: "🎓",
+    title: "University Verified",
+    description: "Only verified students can access the platform. Trust starts with identity.",
+  },
+  {
+    icon: "🤖",
+    title: "AI Survival Blueprint",
+    description: "Get a personalized packing list and task plan based on your destination, housing, and budget.",
+  },
+  {
+    icon: "🔗",
+    title: "Smart Matching",
+    description: "Automatically matched with outgoing students selling exactly what you need, nearby.",
+  },
+  {
+    icon: "🛡️",
+    title: "Trust & Safety",
+    description: "Reputation scores, deal badges, and in-app communication keep every transaction safe.",
+  },
+  {
+    icon: "💬",
+    title: "Real-time Chat",
+    description: "Negotiate, plan meetups, and confirm deals — all within the platform.",
+  },
+  {
+    icon: "📍",
+    title: "Location Verified",
+    description: "GPS verification ensures sellers are actually near your campus.",
+  },
+]
+
+export default function LandingPage() {
   return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="https://nextjs.org/icons/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
-
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="https://nextjs.org/icons/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+    <div className="min-h-screen bg-background">
+      {/* Hero */}
+      <header className="border-b">
+        <div className="container mx-auto flex items-center justify-between px-6 py-4">
+          <div className="flex items-center gap-2">
+            <span className="text-2xl">📦</span>
+            <span className="text-xl font-bold">MoveKit</span>
+          </div>
+          <Link href="/login">
+            <Button>Get Started</Button>
+          </Link>
         </div>
+      </header>
+
+      <main>
+        {/* Hero Section */}
+        <section className="container mx-auto px-6 py-20 text-center">
+          <Badge variant="secondary" className="mb-4">
+            Built for the Youth Code × AI Hackathon
+          </Badge>
+          <h1 className="mx-auto max-w-3xl text-4xl font-bold tracking-tight sm:text-5xl lg:text-6xl">
+            Relocating to University?
+            <br />
+            <span className="text-primary">We've Got Your Kit.</span>
+          </h1>
+          <p className="mx-auto mt-6 max-w-2xl text-lg text-muted-foreground">
+            MoveKit connects incoming students with outgoing students selling exactly what they need. 
+            AI-powered planning. Verified trust. Zero guesswork.
+          </p>
+          <div className="mt-8 flex items-center justify-center gap-4">
+            <Link href="/login">
+              <Button size="lg">Start Your Blueprint</Button>
+            </Link>
+            <Link href="/marketplace">
+              <Button variant="outline" size="lg">Browse Marketplace</Button>
+            </Link>
+          </div>
+        </section>
+
+        {/* How it works */}
+        <section className="border-t bg-muted/50 py-16">
+          <div className="container mx-auto px-6">
+            <h2 className="mb-12 text-center text-3xl font-bold">How It Works</h2>
+            <div className="grid gap-8 md:grid-cols-3">
+              <div className="text-center">
+                <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-primary text-xl text-primary-foreground">
+                  1
+                </div>
+                <h3 className="mb-2 font-semibold">Verify & Plan</h3>
+                <p className="text-sm text-muted-foreground">
+                  Sign up with your university email, verify your location, and get an AI-generated survival blueprint.
+                </p>
+              </div>
+              <div className="text-center">
+                <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-primary text-xl text-primary-foreground">
+                  2
+                </div>
+                <h3 className="mb-2 font-semibold">Match & Connect</h3>
+                <p className="text-sm text-muted-foreground">
+                  Get matched with nearby outgoing students selling items from your checklist. Chat securely in-app.
+                </p>
+              </div>
+              <div className="text-center">
+                <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-primary text-xl text-primary-foreground">
+                  3
+                </div>
+                <h3 className="mb-2 font-semibold">Deal & Settle</h3>
+                <p className="text-sm text-muted-foreground">
+                  Lock in deals, meet up, confirm the exchange. Both earn trust badges. Welcome to campus.
+                </p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Features */}
+        <section className="py-16">
+          <div className="container mx-auto px-6">
+            <h2 className="mb-12 text-center text-3xl font-bold">Platform Features</h2>
+            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+              {features.map((feature) => (
+                <Card key={feature.title} className="transition-shadow hover:shadow-md">
+                  <CardContent className="pt-6">
+                    <div className="mb-3 text-3xl">{feature.icon}</div>
+                    <h3 className="mb-2 font-semibold">{feature.title}</h3>
+                    <p className="text-sm text-muted-foreground">{feature.description}</p>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* CTA */}
+        <section className="border-t bg-muted/50 py-16">
+          <div className="container mx-auto px-6 text-center">
+            <h2 className="mb-4 text-3xl font-bold">Ready to Move Smart?</h2>
+            <p className="mb-8 text-muted-foreground">
+              Join verified students already using MoveKit to simplify their relocation.
+            </p>
+            <Link href="/login">
+              <Button size="lg">Verify Your University Email</Button>
+            </Link>
+          </div>
+        </section>
       </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
+
+      {/* Footer */}
+      <footer className="border-t py-8">
+        <div className="container mx-auto px-6 text-center text-sm text-muted-foreground">
+          <p>© 2026 MoveKit — Campus Relocation Network</p>
+          <p className="mt-1">Built with Next.js, Supabase, Groq AI & ❤️</p>
+        </div>
       </footer>
     </div>
-  );
+  )
 }
