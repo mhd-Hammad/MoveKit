@@ -2,6 +2,7 @@
 
 import { useState } from "react"
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -9,40 +10,52 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 type Step = "email" | "otp"
 
 export default function LoginPage() {
+  const router = useRouter()
   const [step, setStep] = useState<Step>("email")
   const [email, setEmail] = useState("")
   const [otp, setOtp] = useState("")
   const [error, setError] = useState("")
+  const [success, setSuccess] = useState("")
   const [isLoading, setIsLoading] = useState(false)
 
   const handleSendOtp = async (e: React.FormEvent) => {
     e.preventDefault()
     setError("")
+    setSuccess("")
 
     if (!email.includes("@") || !email.includes(".")) {
       setError("Please enter a valid email address")
       return
     }
 
-    // Check if it looks like a university email
-    const domain = email.split("@")[1]
-    const commonPersonal = ["gmail.com", "yahoo.com", "hotmail.com", "outlook.com"]
-    if (commonPersonal.includes(domain)) {
-      setError("Please use your university email address (e.g., you@university.edu)")
-      return
-    }
-
     setIsLoading(true)
-    // TODO: Call POST /api/auth/send-otp
-    // For now, simulate
-    await new Promise((r) => setTimeout(r, 1000))
-    setIsLoading(false)
-    setStep("otp")
+    try {
+      const res = await fetch("/api/auth/send-otp", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      })
+
+      const data = await res.json()
+
+      if (!res.ok) {
+        setError(data.error || "Failed to send code")
+        return
+      }
+
+      setSuccess(data.message)
+      setStep("otp")
+    } catch {
+      setError("Network error. Please try again.")
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   const handleVerifyOtp = async (e: React.FormEvent) => {
     e.preventDefault()
     setError("")
+    setSuccess("")
 
     if (otp.length !== 6 || !/^\d{6}$/.test(otp)) {
       setError("Please enter a valid 6-digit code")
@@ -50,12 +63,29 @@ export default function LoginPage() {
     }
 
     setIsLoading(true)
-    // TODO: Call POST /api/auth/verify-otp
-    // For now, simulate
-    await new Promise((r) => setTimeout(r, 1000))
-    setIsLoading(false)
-    // TODO: redirect to /dashboard on success
-    setError("Backend not connected yet — OTP verification coming soon!")
+    try {
+      const res = await fetch("/api/auth/verify-otp", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, otp }),
+      })
+
+      const data = await res.json()
+
+      if (!res.ok) {
+        setError(data.error || "Verification failed")
+        return
+      }
+
+      // Success! Store user info and redirect
+      setSuccess("Verified! Redirecting...")
+      localStorage.setItem("movekit_user", JSON.stringify(data.user))
+      setTimeout(() => router.push("/dashboard"), 1000)
+    } catch {
+      setError("Network error. Please try again.")
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   return (
@@ -99,6 +129,9 @@ export default function LoginPage() {
                 {error && (
                   <p className="text-sm text-destructive">{error}</p>
                 )}
+                {success && (
+                  <p className="text-sm text-green-600">{success}</p>
+                )}
                 <Button type="submit" className="w-full" disabled={isLoading}>
                   {isLoading ? "Sending code..." : "Send Verification Code"}
                 </Button>
@@ -129,6 +162,9 @@ export default function LoginPage() {
                 {error && (
                   <p className="text-sm text-destructive">{error}</p>
                 )}
+                {success && (
+                  <p className="text-sm text-green-600">{success}</p>
+                )}
                 <Button type="submit" className="w-full" disabled={isLoading}>
                   {isLoading ? "Verifying..." : "Verify & Sign In"}
                 </Button>
@@ -140,6 +176,7 @@ export default function LoginPage() {
                     setStep("email")
                     setOtp("")
                     setError("")
+                    setSuccess("")
                   }}
                 >
                   Use a different email
