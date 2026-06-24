@@ -58,7 +58,7 @@ export async function POST(req: NextRequest) {
       .delete()
       .eq('email', email)
 
-    const expiresAt = new Date(Date.now() + 10 * 60 * 1000).toISOString() // 10 min
+    const expiresAt = new Date(Date.now() + 5 * 60 * 1000).toISOString() // 5 min
 
     const { error: insertError } = await supabase
       .from('otp_records')

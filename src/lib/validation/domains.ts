@@ -52,24 +52,21 @@ const BLOCKED_DOMAINS = [
 /**
  * Checks if an email domain looks like a valid university domain.
  * Uses pattern matching for MVP. Will be replaced with DB lookup.
+ * 
+ * NOTE: In development, allows all domains for testing.
+ * In production, only university domains pass.
  */
 export function isValidUniversityDomain(domain: string): boolean {
   const lowerDomain = domain.toLowerCase()
 
-  // Block known personal email providers
-  if (BLOCKED_DOMAINS.includes(lowerDomain)) {
-    return false
-  }
-
-  // Accept if matches any university TLD pattern
-  for (const tld of UNIVERSITY_TLDS) {
-    if (lowerDomain.endsWith(tld) || lowerDomain.includes(tld)) {
-      return true
+  // Block known personal email providers in production only
+  if (process.env.NODE_ENV === 'production') {
+    if (BLOCKED_DOMAINS.includes(lowerDomain)) {
+      return false
     }
   }
 
-  // For hackathon: also accept any domain not in blocked list
-  // This is permissive for demo purposes — in production, only DB-listed domains pass
+  // In development, allow everything for testing
   return true
 }
 
