@@ -118,6 +118,11 @@ export default function ChatSessionPage() {
         <Badge variant="secondary">In Context</Badge>
       </div>
 
+      {/* Policy Banner */}
+      <div className="rounded-lg bg-blue-50 border border-blue-100 px-3 py-2 text-xs text-blue-800 mb-4">
+        <strong>💡 MoveKit Policy:</strong> This is a cash-on-meetup platform. Use the meetup scheduler below to arrange exchange. Contact sharing is allowed but tracked for safety. <span className="underline cursor-pointer">Learn more</span>
+      </div>
+
       {/* Error */}
       {error && (
         <div className="rounded-lg bg-destructive/10 p-3 text-sm text-destructive mb-4">
@@ -171,14 +176,22 @@ export default function ChatSessionPage() {
           <Button variant="outline" size="sm" className="text-xs shrink-0" onClick={handleProposeDeal}>
             🤝 Propose Deal
           </Button>
-          <Button variant="outline" size="sm" className="text-xs shrink-0" onClick={() => setMessage("Can we meet at ")}>
+          <Button variant="outline" size="sm" className="text-xs shrink-0" onClick={() => setMessage("📍 Meetup proposal: Let's meet at [location] on [date] at [time]. Does that work?")}>
             📍 Schedule Meetup
           </Button>
-          <Button variant="outline" size="sm" className="text-xs shrink-0" onClick={() => setMessage("Is this still available?")}>
+          <Button variant="outline" size="sm" className="text-xs shrink-0" onClick={() => setMessage("Is this still available? I'm interested!")}>
             ❓ Ask Availability
+          </Button>
+          <Button variant="outline" size="sm" className="text-xs shrink-0" onClick={() => setMessage("📞 I'd like to share my contact for meetup coordination. My number is: ")}>
+            📞 Share Contact
           </Button>
         </CardContent>
       </Card>
+
+      {/* Cash-only reminder */}
+      <p className="text-[10px] text-center text-muted-foreground mb-2">
+        💰 All transactions are cash-on-meetup. Never send money in advance.
+      </p>
 
       {/* Input */}
       <form onSubmit={handleSend} className="flex gap-2">

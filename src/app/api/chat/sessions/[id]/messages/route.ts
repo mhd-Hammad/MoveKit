@@ -8,17 +8,14 @@ const CONTACT_PATTERNS = [
   /(?:instagram|ig|insta|snap|snapchat|whatsapp|telegram|signal|discord|twitter|x\.com)\s*[:\-@]?\s*\S+/i, // social handles
 ]
 
-// Scam/spam patterns that should be flagged
+// Scam/spam patterns that should be BLOCKED (actually dangerous)
 const SCAM_PATTERNS = [
-  /pay\s*(me\s*)?(outside|off|directly)/i,
   /western\s*union/i,
   /wire\s*transfer/i,
-  /gift\s*card/i,
-  /\b(venmo|cashapp|zelle|paypal)\s*(me|link|@)/i,
-  /send\s*(money|payment)\s*(first|before)/i,
-  /too\s*good\s*to\s*be\s*true/i,
-  /click\s*(this|here|the)\s*link/i,
+  /gift\s*card\s*(payment|code)/i,
+  /send\s*(money|payment)\s*(first|before|upfront)/i,
   /bit\.ly|tinyurl|shorturl/i,
+  /advance\s*(fee|payment)/i,
 ]
 
 function detectContactInfo(content: string): boolean {
