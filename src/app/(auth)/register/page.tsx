@@ -21,7 +21,8 @@ export default function RegisterPage() {
   const router = useRouter()
   const [step, setStep] = useState<Step>("role")
   const [role, setRole] = useState<UserRole | "">("")
-  const [name, setName] = useState("")
+  const [firstName, setFirstName] = useState("")
+  const [lastName, setLastName] = useState("")
   const [email, setEmail] = useState("")
   const [otp, setOtp] = useState("")
   const [selectedCampus, setSelectedCampus] = useState("")
@@ -46,8 +47,12 @@ export default function RegisterPage() {
   const handleDetailsSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     setError("")
-    if (!name.trim() || name.length < 2) {
-      setError("Name must be at least 2 characters")
+    if (!firstName.trim() || firstName.length < 2) {
+      setError("First name must be at least 2 characters")
+      return
+    }
+    if (!lastName.trim()) {
+      setError("Last name is required")
       return
     }
     if (!selectedCampus) {
@@ -118,14 +123,22 @@ export default function RegisterPage() {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             user_id: data.user.id,
-            display_name: name.trim(),
+            display_name: `${firstName.trim()} ${lastName.trim()}`,
+            first_name: firstName.trim(),
+            last_name: lastName.trim(),
+            role_type: role,
+            current_country: currentCountry,
+            campus_id: selectedCampus || null,
+            profile_completed: true,
           }),
         })
 
         // Store user with extra info
         const userData = {
           ...data.user,
-          display_name: name.trim(),
+          display_name: `${firstName.trim()} ${lastName.trim()}`,
+          first_name: firstName.trim(),
+          last_name: lastName.trim(),
           role_type: role,
           campus_id: selectedCampus,
           current_country: currentCountry,
@@ -243,16 +256,28 @@ export default function RegisterPage() {
               </CardHeader>
               <CardContent>
                 <form onSubmit={handleDetailsSubmit} className="space-y-4">
-                  <div>
-                    <label className="mb-2 block text-sm font-medium">Your Name</label>
-                    <Input
-                      value={name}
-                      onChange={(e) => setName(e.target.value)}
-                      placeholder="Full name"
-                      required
-                      autoFocus
-                      className="h-11"
-                    />
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="mb-2 block text-sm font-medium">First Name</label>
+                      <Input
+                        value={firstName}
+                        onChange={(e) => setFirstName(e.target.value)}
+                        placeholder="First name"
+                        required
+                        autoFocus
+                        className="h-11"
+                      />
+                    </div>
+                    <div>
+                      <label className="mb-2 block text-sm font-medium">Last Name</label>
+                      <Input
+                        value={lastName}
+                        onChange={(e) => setLastName(e.target.value)}
+                        placeholder="Last name"
+                        required
+                        className="h-11"
+                      />
+                    </div>
                   </div>
 
                   <div>

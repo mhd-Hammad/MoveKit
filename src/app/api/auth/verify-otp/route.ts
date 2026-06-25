@@ -88,10 +88,9 @@ export async function POST(req: NextRequest) {
       )
     }
 
-    // OTP is valid — create or update user
+    // OTP is valid — check if user already exists (sign in) or new (from register)
     const domain = extractDomain(email)
 
-    // Check if user already exists
     const { data: existingUser } = await supabase
       .from('users')
       .select('*')
@@ -101,18 +100,10 @@ export async function POST(req: NextRequest) {
     let user
 
     if (existingUser) {
-      // Update existing user
-      const { data: updatedUser, error: updateError } = await supabase
-        .from('users')
-        .update({ email_verified: true, university_domain: domain })
-        .eq('id', existingUser.id)
-        .select()
-        .single()
-
-      if (updateError) throw updateError
-      user = updatedUser
+      // Existing user — just sign them in (no duplicate creation)
+      user = existingUser
     } else {
-      // Create new user
+      // New user — create account (only happens via /register flow)
       const { data: newUser, error: createError } = await supabase
         .from('users')
         .insert({
@@ -122,24 +113,35 @@ export async function POST(req: NextRequest) {
           email_verified: true,
           document_verified: false,
           location_verified: false,
-          trust_score: 20, // +20 for email verification
+          trust_score: 20,
           role: 'user',
           wellness_opt_out: false,
         })
         .select()
         .single()
 
-      if (createError) throw createError
-      user = newUser
-
-      // Record trust event for email verification
-      await supabase
-        .from('trust_events')
-        .insert({
+      if (createError) {
+        // If insert fails due to unique constraint, user already exists
+        const { data: retryUser } = await supabase
+          .from('users')
+          .select('*')
+          .eq('email', email)
+          .single()
+        
+        if (retryUser) {
+          user = retryUser
+        } else {
+          throw createError
+        }
+      } else {
+        user = newUser
+        // Record trust event for email verification (only for new users)
+        await supabase.from('trust_events').insert({
           user_id: user.id,
           event_type: 'email_verified',
           points: 20,
         })
+      }
     }
 
     // Delete OTP record

@@ -77,7 +77,7 @@ export default function LoginPage() {
         return
       }
 
-      setSuccess("✓ Verified! Redirecting to dashboard...")
+      setSuccess("✓ Verified! Redirecting...")
       localStorage.setItem("movekit_user", JSON.stringify(data.user))
       setTimeout(() => router.push("/dashboard"), 1000)
     } catch {

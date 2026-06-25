@@ -68,6 +68,12 @@ export async function PATCH(req: NextRequest) {
 
     const updates: Record<string, unknown> = { updated_at: new Date().toISOString() }
     if (display_name) updates.display_name = display_name
+    if (body.first_name !== undefined) updates.first_name = body.first_name
+    if (body.last_name !== undefined) updates.last_name = body.last_name
+    if (body.role_type) updates.role_type = body.role_type
+    if (body.current_country !== undefined) updates.current_country = body.current_country
+    if (body.campus_id !== undefined) updates.campus_id = body.campus_id
+    if (body.profile_completed !== undefined) updates.profile_completed = body.profile_completed
 
     const { data: user, error } = await supabase
       .from('users')
