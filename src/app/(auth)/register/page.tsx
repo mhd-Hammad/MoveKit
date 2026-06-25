@@ -19,6 +19,7 @@ export default function RegisterPage() {
   const [firstName, setFirstName] = useState("")
   const [lastName, setLastName] = useState("")
   const [email, setEmail] = useState("")
+  const [phone, setPhone] = useState("")
   const [otp, setOtp] = useState("")
   const [universityName, setUniversityName] = useState("")
   const [universityCity, setUniversityCity] = useState("")
@@ -124,6 +125,7 @@ export default function RegisterPage() {
             university_name: universityName.trim(),
             university_city: universityCity.trim(),
             university_country: universityCountry,
+            phone_number: phone.trim(),
             profile_completed: true,
           }),
         })
@@ -335,6 +337,20 @@ export default function RegisterPage() {
                       </p>
                     </div>
                   )}
+
+                  <div>
+                    <label className="mb-2 block text-sm font-medium">Phone Number</label>
+                    <Input
+                      type="tel"
+                      value={phone}
+                      onChange={(e) => setPhone(e.target.value)}
+                      placeholder="+92 300 1234567"
+                      className="h-11"
+                    />
+                    <p className="mt-1 text-xs text-muted-foreground">
+                      Required for chat and deals. Never shared publicly.
+                    </p>
+                  </div>
 
                   {error && (
                     <div className="rounded-lg bg-destructive/10 p-3 text-sm text-destructive">{error}</div>

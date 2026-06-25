@@ -75,6 +75,7 @@ export async function PATCH(req: NextRequest) {
     if (body.university_name !== undefined) updates.university_name = body.university_name
     if (body.university_city !== undefined) updates.university_city = body.university_city
     if (body.university_country !== undefined) updates.university_country = body.university_country
+    if (body.phone_number !== undefined) updates.phone_number = body.phone_number
     if (body.campus_id !== undefined) updates.campus_id = body.campus_id
     if (body.profile_completed !== undefined) updates.profile_completed = body.profile_completed
 
