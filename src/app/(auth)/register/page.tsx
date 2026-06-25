@@ -406,6 +406,11 @@ export default function RegisterPage() {
                   <Button type="submit" className="w-full h-11 gradient-primary border-0 text-white" disabled={isLoading}>
                     {isLoading ? "Sending..." : "Send Verification Code"}
                   </Button>
+                  <p className="text-center text-[10px] text-muted-foreground">
+                    By continuing, you agree to MoveKit&apos;s{" "}
+                    <a href="/policies" target="_blank" className="text-primary underline">Privacy Policy</a> and{" "}
+                    <a href="/policies" target="_blank" className="text-primary underline">Terms of Service</a>.
+                  </p>
                   <Button type="button" variant="ghost" className="w-full" onClick={() => setStep("details")}>
                     ← Back
                   </Button>

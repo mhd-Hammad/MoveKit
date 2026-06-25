@@ -10,6 +10,8 @@ export interface MatchInput {
     campus_lon: number
     boost_factor: number
     matching_categories: string[]
+    seller_university_city?: string
+    seller_university_country?: string
   }
   buyer: {
     destination_lat: number
@@ -17,6 +19,8 @@ export interface MatchInput {
     budget_min: number
     budget_max: number
     blueprint_categories: string[]
+    university_city?: string
+    university_country?: string
   }
 }
 
@@ -47,19 +51,38 @@ export function normalizeWeights(weights: MatchWeights): MatchWeights {
 
 /**
  * Computes distance sub-score (0-1). Closer = higher score.
+ * Uses GPS coordinates when available, falls back to city/country matching.
  * Max distance is 25km (listings beyond this are filtered out).
  */
 export function computeDistanceScore(
   sellerLat: number,
   sellerLon: number,
   buyerLat: number,
-  buyerLon: number
+  buyerLon: number,
+  sellerCity?: string,
+  buyerCity?: string,
+  sellerCountry?: string,
+  buyerCountry?: string,
 ): number {
-  const distance = haversine(sellerLat, sellerLon, buyerLat, buyerLon)
-  const maxDistance = 25 // km
+  // If we have valid GPS for both, use haversine
+  if (sellerLat && sellerLon && buyerLat && buyerLon) {
+    const distance = haversine(sellerLat, sellerLon, buyerLat, buyerLon)
+    const maxDistance = 25 // km
+    if (distance >= maxDistance) return 0
+    return 1 - distance / maxDistance
+  }
 
-  if (distance >= maxDistance) return 0
-  return 1 - distance / maxDistance
+  // Fallback: city/country matching
+  if (sellerCity && buyerCity) {
+    const sameCity = sellerCity.toLowerCase() === buyerCity.toLowerCase()
+    if (sameCity) return 0.9 // Same city = very close
+  }
+  if (sellerCountry && buyerCountry) {
+    const sameCountry = sellerCountry.toLowerCase() === buyerCountry.toLowerCase()
+    if (sameCountry) return 0.5 // Same country = moderate
+  }
+
+  return 0.3 // Unknown — default moderate-low
 }
 
 /**
@@ -117,7 +140,11 @@ export function computeMatchScore(
       input.listing.campus_lat,
       input.listing.campus_lon,
       input.buyer.destination_lat,
-      input.buyer.destination_lon
+      input.buyer.destination_lon,
+      input.listing.seller_university_city,
+      input.buyer.university_city,
+      input.listing.seller_university_country,
+      input.buyer.university_country,
     ),
     price_score: computePriceScore(
       input.listing.price,
