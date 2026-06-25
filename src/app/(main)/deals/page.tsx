@@ -4,6 +4,7 @@ import { useState, useEffect } from "react"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
+import { Dialog, DialogHeader, DialogTitle, DialogDescription, DialogContent, DialogFooter } from "@/components/ui/dialog"
 import Link from "next/link"
 
 interface Deal {
@@ -55,50 +56,44 @@ export default function DealsPage() {
     }
   }
 
+  const [confirmDialog, setConfirmDialog] = useState<{ type: string; dealId: string } | null>(null)
+  const [actionLoading, setActionLoading] = useState("")
+
   const handleConfirm = async (dealId: string) => {
+    setActionLoading(dealId)
     const res = await fetch(`/api/deals/${dealId}/confirm`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ user_id: userId }),
     })
     const data = await res.json()
-    if (res.ok) {
-      alert(data.message)
-      fetchDeals(userId)
-    } else {
-      alert(data.error)
-    }
+    setActionLoading("")
+    setConfirmDialog(null)
+    if (res.ok) fetchDeals(userId)
   }
 
   const handleAccept = async (dealId: string) => {
+    setActionLoading(dealId)
     const res = await fetch(`/api/deals/${dealId}/accept`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ user_id: userId }),
     })
-    const data = await res.json()
-    if (res.ok) {
-      alert(data.message)
-      fetchDeals(userId)
-    } else {
-      alert(data.error)
-    }
+    setActionLoading("")
+    setConfirmDialog(null)
+    if (res.ok) fetchDeals(userId)
   }
 
   const handleCancel = async (dealId: string) => {
-    if (!confirm("Are you sure you want to cancel this deal? This will affect your trust score (-3 points).")) return
+    setActionLoading(dealId)
     const res = await fetch(`/api/deals/${dealId}/cancel`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ user_id: userId }),
     })
-    const data = await res.json()
-    if (res.ok) {
-      alert(data.message)
-      fetchDeals(userId)
-    } else {
-      alert(data.error)
-    }
+    setActionLoading("")
+    setConfirmDialog(null)
+    if (res.ok) fetchDeals(userId)
   }
 
   if (loading) {
@@ -166,11 +161,11 @@ export default function DealsPage() {
                       </div>
                       <div className="flex gap-2">
                         {((isBuyer && !deal.buyer_confirmed) || (!isBuyer && !deal.seller_confirmed)) && (
-                          <Button size="sm" className="gradient-primary border-0 text-white" onClick={() => handleConfirm(deal.id)}>
-                            Confirm Exchange ✓
+                          <Button size="sm" className="gradient-primary border-0 text-white" onClick={() => setConfirmDialog({ type: "confirm", dealId: deal.id })} disabled={actionLoading === deal.id}>
+                            {actionLoading === deal.id ? "..." : "Confirm Exchange ✓"}
                           </Button>
                         )}
-                        <Button size="sm" variant="outline" onClick={() => handleCancel(deal.id)}>
+                        <Button size="sm" variant="outline" onClick={() => setConfirmDialog({ type: "cancel", dealId: deal.id })} disabled={actionLoading === deal.id}>
                           Cancel Deal
                         </Button>
                       </div>
@@ -180,10 +175,10 @@ export default function DealsPage() {
                   {/* Proposed — seller can accept */}
                   {deal.status === "proposed" && !isBuyer && (
                     <div className="mt-4 flex gap-2">
-                      <Button size="sm" className="gradient-primary border-0 text-white" onClick={() => handleAccept(deal.id)}>
+                      <Button size="sm" className="gradient-primary border-0 text-white" onClick={() => setConfirmDialog({ type: "accept", dealId: deal.id })} disabled={actionLoading === deal.id}>
                         Accept Deal
                       </Button>
-                      <Button size="sm" variant="outline" onClick={() => handleCancel(deal.id)}>
+                      <Button size="sm" variant="outline" onClick={() => setConfirmDialog({ type: "cancel", dealId: deal.id })} disabled={actionLoading === deal.id}>
                         Reject
                       </Button>
                     </div>
@@ -213,6 +208,39 @@ export default function DealsPage() {
           })}
         </div>
       )}
+      {/* Confirmation Dialog */}
+      <Dialog open={!!confirmDialog} onClose={() => setConfirmDialog(null)}>
+        <DialogHeader>
+          <DialogTitle>
+            {confirmDialog?.type === "confirm" && "Confirm Exchange"}
+            {confirmDialog?.type === "accept" && "Accept Deal"}
+            {confirmDialog?.type === "cancel" && "Cancel Deal"}
+          </DialogTitle>
+          <DialogDescription>
+            {confirmDialog?.type === "confirm" && "Confirm that you've completed the exchange. Both parties must confirm for the deal to be marked complete. You'll earn +5 trust and a deal badge."}
+            {confirmDialog?.type === "accept" && "Accept this deal proposal. The listing will be reserved and the price will be locked. You can still cancel later (with a -3 trust penalty)."}
+            {confirmDialog?.type === "cancel" && "Are you sure? Cancelling a deal will deduct 3 points from your trust score and return the listing to active."}
+          </DialogDescription>
+        </DialogHeader>
+        <DialogFooter>
+          <Button variant="outline" onClick={() => setConfirmDialog(null)}>
+            Go Back
+          </Button>
+          <Button
+            variant={confirmDialog?.type === "cancel" ? "destructive" : "default"}
+            className={confirmDialog?.type !== "cancel" ? "gradient-primary border-0 text-white" : ""}
+            onClick={() => {
+              if (!confirmDialog) return
+              if (confirmDialog.type === "confirm") handleConfirm(confirmDialog.dealId)
+              if (confirmDialog.type === "accept") handleAccept(confirmDialog.dealId)
+              if (confirmDialog.type === "cancel") handleCancel(confirmDialog.dealId)
+            }}
+            disabled={!!actionLoading}
+          >
+            {actionLoading ? "Processing..." : confirmDialog?.type === "cancel" ? "Yes, Cancel Deal" : "Confirm"}
+          </Button>
+        </DialogFooter>
+      </Dialog>
     </div>
   )
 }
