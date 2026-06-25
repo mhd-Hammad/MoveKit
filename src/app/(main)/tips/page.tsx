@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -14,62 +14,55 @@ const topics = [
   { value: "social_life", label: "Social", icon: "🎉" },
 ]
 
-const mockTips = [
-  {
-    id: "1",
-    author: "Alex K.",
-    topic: "transportation",
-    body: "Get a monthly transit pass on day one — it's way cheaper than buying individual tickets. The student discount is about 40% off at most cities.",
-    upvotes: 12,
-    downvotes: 1,
-    created_at: "3 days ago",
-  },
-  {
-    id: "2",
-    author: "Sarah M.",
-    topic: "food",
-    body: "The farmers market every Saturday has fresh produce for half the supermarket price. Also check if your campus has a food bank — no shame in it during your first month!",
-    upvotes: 8,
-    downvotes: 0,
-    created_at: "1 week ago",
-  },
-  {
-    id: "3",
-    author: "James R.",
-    topic: "housing",
-    body: "Don't sign a lease without seeing the apartment in person or via video call. Some listings are scams. Use your university housing office as a resource — they often have verified listings.",
-    upvotes: 15,
-    downvotes: 2,
-    created_at: "2 weeks ago",
-  },
-  {
-    id: "4",
-    author: "Priya D.",
-    topic: "academics",
-    body: "Go to office hours in the first week — even if you don't have questions. Professors remember faces and it helps later when you need recommendation letters.",
-    upvotes: 20,
-    downvotes: 0,
-    created_at: "2 weeks ago",
-  },
-  {
-    id: "5",
-    author: "Chen L.",
-    topic: "social_life",
-    body: "Join at least two clubs in your first month. One related to your studies and one completely different. Best way to make friends outside your program.",
-    upvotes: 9,
-    downvotes: 1,
-    created_at: "3 weeks ago",
-  },
-]
+interface Tip {
+  id: string
+  topic: string
+  body: string
+  upvotes: number
+  downvotes: number
+  created_at: string
+  users?: { display_name: string; trust_score: number } | null
+}
 
 export default function TipsPage() {
   const [activeTopic, setActiveTopic] = useState("all")
+  const [tips, setTips] = useState<Tip[]>([])
+  const [loading, setLoading] = useState(true)
   const [newTip, setNewTip] = useState("")
   const [newTopic, setNewTopic] = useState("housing")
+  const [submitting, setSubmitting] = useState(false)
 
-  const filtered = activeTopic === "all"
-    ? mockTips
-    : mockTips.filter((t) => t.topic === activeTopic)
+  useEffect(() => { fetchTips() }, [activeTopic])
+
+  const fetchTips = async () => {
+    setLoading(true)
+    const params = new URLSearchParams()
+    if (activeTopic !== "all") params.set("topic", activeTopic)
+    try {
+      const res = await fetch(`/api/tips?${params}`)
+      const data = await res.json()
+      if (data.data) setTips(data.data)
+    } catch {}
+    setLoading(false)
+  }
+
+  const handleSubmitTip = async () => {
+    if (newTip.length < 20) return
+    setSubmitting(true)
+    const user = JSON.parse(localStorage.getItem("movekit_user") || "{}")
+    try {
+      const res = await fetch("/api/tips", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ author_id: user.id, topic: newTopic, body: newTip }),
+      })
+      if (res.ok) {
+        setNewTip("")
+        fetchTips()
+      }
+    } catch {}
+    setSubmitting(false)
+  }
 
   return (
     <div className="mx-auto max-w-2xl space-y-6">
@@ -96,8 +89,19 @@ export default function TipsPage() {
       </div>
 
       {/* Tips */}
+      {loading ? (
+        <div className="py-8 text-center text-muted-foreground animate-pulse">Loading tips...</div>
+      ) : tips.length === 0 ? (
+        <Card>
+          <CardContent className="py-12 text-center">
+            <p className="text-4xl mb-3">💡</p>
+            <p className="text-muted-foreground">No tips yet for this topic.</p>
+            <p className="text-sm text-muted-foreground">Be the first to share advice!</p>
+          </CardContent>
+        </Card>
+      ) : (
       <div className="space-y-3">
-        {filtered.map((tip) => (
+        {tips.map((tip) => (
           <Card key={tip.id} className="transition-shadow hover:shadow-sm">
             <CardContent className="py-4">
               <div className="flex gap-3">
@@ -114,8 +118,8 @@ export default function TipsPage() {
                     <Badge variant="secondary" className="text-[10px]">
                       {topics.find((t) => t.value === tip.topic)?.icon} {tip.topic}
                     </Badge>
-                    <span>by {tip.author}</span>
-                    <span>· {tip.created_at}</span>
+                    <span>by {tip.users?.display_name || "Anonymous"}</span>
+                    <span>· {new Date(tip.created_at).toLocaleDateString()}</span>
                   </div>
                 </div>
               </div>
@@ -123,6 +127,7 @@ export default function TipsPage() {
           </Card>
         ))}
       </div>
+      )}
 
       {/* Submit Tip */}
       <Card>
@@ -157,9 +162,10 @@ export default function TipsPage() {
               <Button
                 size="sm"
                 className="gradient-primary border-0 text-white"
-                disabled={newTip.length < 20}
+                disabled={newTip.length < 20 || submitting}
+                onClick={handleSubmitTip}
               >
-                Submit Tip
+                {submitting ? "Submitting..." : "Submit Tip"}
               </Button>
             </div>
           </div>
