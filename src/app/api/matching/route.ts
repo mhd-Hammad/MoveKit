@@ -60,33 +60,33 @@ export async function GET(req: NextRequest) {
     const destLat = blueprint.campuses?.latitude || 0
     const destLon = blueprint.campuses?.longitude || 0
 
-    const results = listings.map(listing => {
-      const { score, breakdown } = computeMatchScore(
-        {
-          listing: {
-            id: listing.id,
-            price: listing.price,
-            seller_trust_score: listing.users?.trust_score || 0,
-            campus_lat: listing.campuses?.latitude || 0,
-            campus_lon: listing.campuses?.longitude || 0,
-            boost_factor: listing.boost_factor || 1.0,
-            matching_categories: [listing.category?.toLowerCase()],
+    const results = listings
+      .map(listing => {
+        const { score, breakdown } = computeMatchScore(
+          {
+            listing: {
+              id: listing.id,
+              price: listing.price,
+              seller_trust_score: listing.users?.trust_score || 0,
+              campus_lat: listing.campuses?.latitude || 0,
+              campus_lon: listing.campuses?.longitude || 0,
+              boost_factor: listing.boost_factor || 1.0,
+              matching_categories: [listing.category?.toLowerCase()],
+            },
+            buyer: {
+              destination_lat: destLat,
+              destination_lon: destLon,
+              budget_min: blueprint.budget_min || 0,
+              budget_max: blueprint.budget_max || 1000,
+              blueprint_categories: blueprintCategories,
+            },
           },
-          buyer: {
-            destination_lat: destLat,
-            destination_lon: destLon,
-            budget_min: blueprint.budget_min || 0,
-            budget_max: blueprint.budget_max || 1000,
-            blueprint_categories: blueprintCategories,
-          },
-        },
-        weights
-      )
-      return { listing, score, breakdown }
-    })
-
-    // Sort by score descending
-    results.sort((a, b) => b.score - a.score)
+          weights
+        )
+        return { listing, score, breakdown }
+      })
+      .filter(result => result.breakdown.distance_score > 0) // 25km radius filter
+      .sort((a, b) => b.score - a.score)
 
     return NextResponse.json({ data: results })
   } catch (error) {
