@@ -8,8 +8,25 @@ const CONTACT_PATTERNS = [
   /(?:instagram|ig|insta|snap|snapchat|whatsapp|telegram|signal|discord|twitter|x\.com)\s*[:\-@]?\s*\S+/i, // social handles
 ]
 
+// Scam/spam patterns that should be flagged
+const SCAM_PATTERNS = [
+  /pay\s*(me\s*)?(outside|off|directly)/i,
+  /western\s*union/i,
+  /wire\s*transfer/i,
+  /gift\s*card/i,
+  /\b(venmo|cashapp|zelle|paypal)\s*(me|link|@)/i,
+  /send\s*(money|payment)\s*(first|before)/i,
+  /too\s*good\s*to\s*be\s*true/i,
+  /click\s*(this|here|the)\s*link/i,
+  /bit\.ly|tinyurl|shorturl/i,
+]
+
 function detectContactInfo(content: string): boolean {
   return CONTACT_PATTERNS.some(pattern => pattern.test(content))
+}
+
+function detectScamContent(content: string): boolean {
+  return SCAM_PATTERNS.some(pattern => pattern.test(content))
 }
 
 // GET /api/chat/sessions/:id/messages — get message history
@@ -69,6 +86,15 @@ export async function POST(
     }
 
     const hasContactWarning = detectContactInfo(content)
+    const hasScamFlag = detectScamContent(content)
+
+    // Block scam messages entirely
+    if (hasScamFlag) {
+      return NextResponse.json({
+        error: 'This message was flagged as potentially unsafe. Please keep all transactions within the app.',
+        flagged: true,
+      }, { status: 400 })
+    }
 
     const { data: message, error } = await supabase
       .from('messages')
