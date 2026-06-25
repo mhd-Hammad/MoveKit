@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { countries } from "@/lib/data/countries"
+import { phoneCodes, validatePhoneNumber, type PhoneCode } from "@/lib/data/phone-codes"
 
 type Step = "role" | "details" | "email" | "otp"
 type UserRole = "incoming" | "outgoing"
@@ -20,6 +21,8 @@ export default function RegisterPage() {
   const [lastName, setLastName] = useState("")
   const [email, setEmail] = useState("")
   const [phone, setPhone] = useState("")
+  const [phoneCode, setPhoneCode] = useState<PhoneCode>(phoneCodes[0])
+  const [phoneError, setPhoneError] = useState("")
   const [otp, setOtp] = useState("")
   const [universityName, setUniversityName] = useState("")
   const [universityCity, setUniversityCity] = useState("")
@@ -41,8 +44,16 @@ export default function RegisterPage() {
       setError("First name must be at least 2 characters")
       return
     }
+    if (!/^[a-zA-Z\s'-]+$/.test(firstName.trim())) {
+      setError("First name can only contain letters, spaces, and hyphens")
+      return
+    }
     if (!lastName.trim()) {
       setError("Last name is required")
+      return
+    }
+    if (!/^[a-zA-Z\s'-]+$/.test(lastName.trim())) {
+      setError("Last name can only contain letters, spaces, and hyphens")
       return
     }
     if (!universityName.trim()) {
@@ -52,6 +63,14 @@ export default function RegisterPage() {
     if (!universityCountry) {
       setError("Please select the university country")
       return
+    }
+    // Validate phone
+    if (phone.trim()) {
+      const phoneResult = validatePhoneNumber(phone, phoneCode)
+      if (!phoneResult.valid) {
+        setError(phoneResult.error || "Invalid phone number")
+        return
+      }
     }
     setStep("email")
   }
@@ -125,7 +144,7 @@ export default function RegisterPage() {
             university_name: universityName.trim(),
             university_city: universityCity.trim(),
             university_country: universityCountry,
-            phone_number: phone.trim(),
+            phone_number: `${phoneCode.code} ${phone.trim()}`,
             profile_completed: true,
           }),
         })
@@ -340,13 +359,40 @@ export default function RegisterPage() {
 
                   <div>
                     <label className="mb-2 block text-sm font-medium">Phone Number</label>
-                    <Input
-                      type="tel"
-                      value={phone}
-                      onChange={(e) => setPhone(e.target.value)}
-                      placeholder="+92 300 1234567"
-                      className="h-11"
-                    />
+                    <div className="flex gap-2">
+                      <select
+                        value={phoneCode.code}
+                        onChange={(e) => {
+                          const selected = phoneCodes.find(p => p.code === e.target.value)
+                          if (selected) { setPhoneCode(selected); setPhone(""); setPhoneError("") }
+                        }}
+                        className="flex h-11 w-28 shrink-0 rounded-md border border-input bg-transparent px-2 py-2 text-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+                      >
+                        {phoneCodes.map((p) => (
+                          <option key={`${p.country}-${p.code}`} value={p.code}>
+                            {p.code} {p.country}
+                          </option>
+                        ))}
+                      </select>
+                      <Input
+                        type="tel"
+                        value={phone}
+                        onChange={(e) => {
+                          const digits = e.target.value.replace(/[^\d\s]/g, "")
+                          setPhone(digits)
+                          if (digits.replace(/\s/g, "").length > 0) {
+                            const result = validatePhoneNumber(digits, phoneCode)
+                            setPhoneError(result.valid ? "" : result.error || "")
+                          } else {
+                            setPhoneError("")
+                          }
+                        }}
+                        placeholder={phoneCode.format}
+                        className="h-11 flex-1"
+                        maxLength={phoneCode.maxLength + 3}
+                      />
+                    </div>
+                    {phoneError && <p className="mt-1 text-xs text-destructive">{phoneError}</p>}
                     <p className="mt-1 text-xs text-muted-foreground">
                       Required for chat and deals. Never shared publicly.
                     </p>
