@@ -1,117 +1,103 @@
 "use client"
 
-import { useEffect, useState } from "react"
-import Link from "next/link"
+import { useState, useEffect } from "react"
+import { useRouter } from "next/navigation"
 import { Card, CardContent } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
+import Link from "next/link"
 
 interface ChatSession {
   id: string
   buyer_id: string
   seller_id: string
   listing_id: string
+  is_restricted: boolean
   created_at: string
   listings?: { id: string; title: string; price: number } | null
 }
 
 export default function ChatListPage() {
+  const router = useRouter()
   const [sessions, setSessions] = useState<ChatSession[]>([])
   const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
+  const [error, setError] = useState("")
+  const [userId, setUserId] = useState("")
 
   useEffect(() => {
     const user = JSON.parse(localStorage.getItem("movekit_user") || "{}")
-    if (!user.id) { setLoading(false); return }
-
-    fetch(`/api/chat/sessions?user_id=${user.id}`)
-      .then(r => {
-        if (!r.ok) throw new Error("Failed to load conversations")
-        return r.json()
-      })
-      .then(data => { if (data.data) setSessions(data.data) })
-      .catch((err) => setError(err.message || "Something went wrong"))
-      .finally(() => setLoading(false))
+    if (!user.id) { router.push("/login"); return }
+    setUserId(user.id)
+    fetchSessions(user.id)
   }, [])
 
-  if (loading) {
-    return (
-      <div className="mx-auto max-w-2xl space-y-4 py-8">
-        {[1, 2, 3].map((i) => (
-          <Card key={i}>
-            <CardContent className="py-4">
-              <div className="flex items-start gap-3 animate-pulse">
-                <div className="h-11 w-11 rounded-full bg-muted" />
-                <div className="flex-1 space-y-2">
-                  <div className="h-4 w-1/3 rounded bg-muted" />
-                  <div className="h-3 w-1/4 rounded bg-muted" />
-                  <div className="h-3 w-1/2 rounded bg-muted" />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
-    )
+  const fetchSessions = async (uid: string) => {
+    try {
+      const res = await fetch(`/api/chat/sessions?user_id=${uid}`)
+      const data = await res.json()
+      if (data.data) setSessions(data.data)
+    } catch {
+      setError("Failed to load chats")
+    } finally {
+      setLoading(false)
+    }
   }
 
-  if (error) {
-    return (
-      <div className="mx-auto max-w-2xl py-8">
-        <Card>
-          <CardContent className="py-12 text-center">
-            <p className="text-4xl mb-3">⚠️</p>
-            <p className="font-medium text-destructive">{error}</p>
-            <p className="text-sm text-muted-foreground mt-1">Please check your connection and try again.</p>
-            <button
-              onClick={() => window.location.reload()}
-              className="mt-4 inline-flex items-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors"
-            >
-              Retry
-            </button>
-          </CardContent>
-        </Card>
-      </div>
-    )
+  if (loading) {
+    return <div className="py-12 text-center text-muted-foreground animate-pulse">Loading chats...</div>
   }
 
   return (
     <div className="mx-auto max-w-2xl space-y-6">
       <div>
         <h1 className="text-2xl font-bold">Messages</h1>
-        <p className="text-muted-foreground">Your conversations with buyers and sellers</p>
+        <p className="text-muted-foreground">Your conversations about listings</p>
       </div>
 
-      {sessions.length === 0 ? (
+      {error && (
+        <div className="rounded-lg bg-destructive/10 p-3 text-sm text-destructive">
+          {error}
+          <Button size="sm" variant="ghost" className="ml-2" onClick={() => { setError(""); fetchSessions(userId) }}>
+            Retry
+          </Button>
+        </div>
+      )}
+
+      {sessions.length === 0 && !error ? (
         <Card>
           <CardContent className="py-12 text-center">
             <p className="text-4xl mb-3">💬</p>
-            <p className="text-muted-foreground">No conversations yet.</p>
-            <p className="text-sm text-muted-foreground">Contact a seller from the marketplace to start chatting.</p>
-            <Link href="/marketplace" className="inline-block mt-4">
-              <Badge variant="default" className="cursor-pointer">Browse Marketplace →</Badge>
+            <p className="text-lg text-muted-foreground">No conversations yet.</p>
+            <p className="text-sm text-muted-foreground mb-4">Contact a seller from the marketplace to start chatting.</p>
+            <Link href="/marketplace">
+              <Button>Browse Marketplace</Button>
             </Link>
           </CardContent>
         </Card>
       ) : (
         <div className="space-y-2">
           {sessions.map((session) => (
-            <Link key={session.id} href={`/chat/${session.id}`}>
+            <Link key={session.id} href={`/chat/${session.id}`} aria-label={`Chat about ${session.listings?.title || "listing"}`}>
               <Card className="cursor-pointer transition-all hover:shadow-md hover:border-primary/20 mb-2">
                 <CardContent className="py-4">
-                  <div className="flex items-start gap-3">
+                  <div className="flex items-center gap-3">
                     <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-primary/10 font-semibold text-primary">
                       💬
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="font-medium">
-                        {session.listings?.title || "Chat"}
+                      <p className="font-medium text-sm truncate">
+                        {session.listings?.title || "Listing"}
                       </p>
-                      <p className="text-sm text-primary font-medium">
-                        ${session.listings?.price || "—"}
+                      <p className="text-xs text-muted-foreground">
+                        {session.listings?.price ? `$${session.listings.price}` : ""} · {session.is_restricted ? "Deal active" : "Open chat"}
                       </p>
-                      <p className="text-xs text-muted-foreground mt-0.5">
-                        Started {new Date(session.created_at).toLocaleDateString()}
+                    </div>
+                    <div className="text-right shrink-0">
+                      <p className="text-[10px] text-muted-foreground">
+                        {new Date(session.created_at).toLocaleDateString()}
                       </p>
+                      {session.is_restricted && (
+                        <span className="text-[10px] text-blue-600 font-medium">🔒 Deal Mode</span>
+                      )}
                     </div>
                   </div>
                 </CardContent>
