@@ -241,7 +241,8 @@ export default function LoginPage() {
           </Card>
 
           <p className="mt-6 text-center text-xs text-muted-foreground">
-            Only students with verified university emails can access MoveKit.
+            Don&apos;t have an account?{" "}
+            <Link href="/register" className="text-primary hover:underline">Create one</Link>
           </p>
         </div>
       </div>

@@ -64,7 +64,7 @@ export default function LandingPage() {
             <span className="text-lg font-bold">MoveKit</span>
           </div>
           <Link href="/login">
-            <Button size="sm">Get Started →</Button>
+            <Button size="sm">Sign In</Button>
           </Link>
         </div>
       </header>
@@ -86,9 +86,9 @@ export default function LandingPage() {
               selling exactly what they need. Verified trust. Smart matching. Zero guesswork.
             </p>
             <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
-              <Link href="/login">
+              <Link href="/register">
                 <Button size="lg" className="gradient-primary border-0 px-8 text-white shadow-lg shadow-blue-500/25 hover:shadow-blue-500/40 transition-all">
-                  Start Your Blueprint
+                  Get Started Free
                 </Button>
               </Link>
               <Link href="/marketplace">
@@ -169,9 +169,9 @@ export default function LandingPage() {
               <p className="mt-3 text-blue-100">
                 Join verified students already using MoveKit to simplify their relocation.
               </p>
-              <Link href="/login">
+              <Link href="/register">
                 <Button size="lg" className="mt-8 bg-white text-blue-700 hover:bg-blue-50 shadow-lg">
-                  Verify Your University Email →
+                  Create Your Account →
                 </Button>
               </Link>
             </div>
