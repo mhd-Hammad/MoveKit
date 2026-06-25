@@ -31,10 +31,41 @@ export default function CreateListingPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsSubmitting(true)
-    // TODO: Call POST /api/listings when wired up
-    await new Promise((r) => setTimeout(r, 1500))
-    setIsSubmitting(false)
-    router.push("/marketplace")
+    
+    const user = JSON.parse(localStorage.getItem("movekit_user") || "{}")
+    if (!user.id) {
+      alert("Please log in first")
+      setIsSubmitting(false)
+      return
+    }
+
+    try {
+      const res = await fetch("/api/listings", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          title,
+          description,
+          price: parseFloat(price),
+          category,
+          condition,
+          user_id: user.id,
+          campus_id: null,
+          photos: [],
+        }),
+      })
+
+      if (res.ok) {
+        router.push("/marketplace")
+      } else {
+        const data = await res.json()
+        alert(data.error || "Failed to create listing")
+      }
+    } catch {
+      alert("Network error. Please try again.")
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   return (

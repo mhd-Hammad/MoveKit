@@ -1,80 +1,22 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
 import Link from "next/link"
 
-const mockListings = [
-  {
-    id: "1",
-    title: "IKEA Desk Lamp + USB Hub",
-    price: 25,
-    category: "Electronics",
-    condition: "like_new",
-    seller: "Alex K.",
-    trust_score: 35,
-    campus: "MIT Campus",
-    photo: "🖥️",
-  },
-  {
-    id: "2",
-    title: "Complete Kitchen Starter Bundle",
-    price: 60,
-    category: "Kitchen",
-    condition: "good",
-    seller: "Sarah M.",
-    trust_score: 50,
-    campus: "MIT Campus",
-    photo: "🍳",
-  },
-  {
-    id: "3",
-    title: "Winter Jacket + Boots (Size M)",
-    price: 80,
-    category: "Clothing",
-    condition: "good",
-    seller: "James R.",
-    trust_score: 28,
-    campus: "MIT Campus",
-    photo: "🧥",
-  },
-  {
-    id: "4",
-    title: "Bedding Set (Queen) - Like New",
-    price: 45,
-    category: "Housing",
-    condition: "like_new",
-    seller: "Priya D.",
-    trust_score: 42,
-    campus: "MIT Campus",
-    photo: "🛏️",
-  },
-  {
-    id: "5",
-    title: "Universal Power Adapter (UK/EU/US)",
-    price: 15,
-    category: "Electronics",
-    condition: "new",
-    seller: "Tom W.",
-    trust_score: 30,
-    campus: "MIT Campus",
-    photo: "🔌",
-  },
-  {
-    id: "6",
-    title: "Bicycle (Hybrid, good condition)",
-    price: 120,
-    category: "Transport",
-    condition: "fair",
-    seller: "Chen L.",
-    trust_score: 55,
-    campus: "MIT Campus",
-    photo: "🚲",
-  },
-]
+interface Listing {
+  id: string
+  title: string
+  price: number
+  category: string
+  condition: string
+  photos: string[]
+  created_at: string
+  users?: { display_name: string; trust_score: number } | null
+}
 
 const conditions: Record<string, string> = {
   new: "New",
@@ -85,12 +27,35 @@ const conditions: Record<string, string> = {
 
 export default function MarketplacePage() {
   const [search, setSearch] = useState("")
+  const [listings, setListings] = useState<Listing[]>([])
+  const [loading, setLoading] = useState(true)
 
-  const filtered = mockListings.filter(
-    (l) =>
-      l.title.toLowerCase().includes(search.toLowerCase()) ||
-      l.category.toLowerCase().includes(search.toLowerCase())
-  )
+  useEffect(() => {
+    fetchListings()
+  }, [])
+
+  const fetchListings = async (query?: string) => {
+    setLoading(true)
+    try {
+      const params = new URLSearchParams()
+      if (query && query.length >= 2) params.set("query", query)
+      
+      const res = await fetch(`/api/listings?${params}`)
+      const data = await res.json()
+      if (data.data) setListings(data.data)
+    } catch {
+      console.error("Failed to fetch listings")
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleSearch = (value: string) => {
+    setSearch(value)
+    if (value.length >= 2 || value.length === 0) {
+      fetchListings(value)
+    }
+  }
 
   return (
     <div className="space-y-6">
@@ -111,44 +76,64 @@ export default function MarketplacePage() {
         <Input
           placeholder="Search items..."
           value={search}
-          onChange={(e) => setSearch(e.target.value)}
+          onChange={(e) => handleSearch(e.target.value)}
           className="max-w-sm"
         />
-        <Button variant="outline" size="sm">Filter</Button>
         <Link href="/marketplace/map">
           <Button variant="outline" size="sm">📍 Map View</Button>
         </Link>
       </div>
 
-      {/* Listings Grid */}
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {filtered.map((listing) => (
-          <Link key={listing.id} href={`/marketplace/${listing.id}`}>
-            <Card className="h-full transition-shadow hover:shadow-md">
-              <CardContent className="pt-6">
-                <div className="mb-3 flex h-24 items-center justify-center rounded-lg bg-muted text-4xl">
-                  {listing.photo}
-                </div>
-                <h3 className="mb-1 font-medium leading-tight">{listing.title}</h3>
-                <p className="mb-2 text-xl font-bold text-primary">${listing.price}</p>
-                <div className="flex flex-wrap gap-1.5">
-                  <Badge variant="secondary">{listing.category}</Badge>
-                  <Badge variant="outline">{conditions[listing.condition]}</Badge>
-                </div>
-                <div className="mt-3 flex items-center justify-between text-xs text-muted-foreground">
-                  <span>{listing.seller} · ⭐ {listing.trust_score}</span>
-                  <span>📍 {listing.campus}</span>
-                </div>
-              </CardContent>
-            </Card>
-          </Link>
-        ))}
-      </div>
-
-      {filtered.length === 0 && (
+      {/* Loading */}
+      {loading && (
         <div className="py-12 text-center text-muted-foreground">
-          <p className="text-lg">No listings match your search.</p>
-          <p className="text-sm">Try a different query or browse all items.</p>
+          <p className="animate-pulse">Loading listings...</p>
+        </div>
+      )}
+
+      {/* Listings Grid */}
+      {!loading && listings.length > 0 && (
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {listings.map((listing) => (
+            <Link key={listing.id} href={`/marketplace/${listing.id}`}>
+              <Card className="h-full transition-shadow hover:shadow-md">
+                <CardContent className="pt-6">
+                  <div className="mb-3 flex h-24 items-center justify-center rounded-lg bg-muted text-4xl">
+                    {listing.category === "Electronics" ? "🖥️" :
+                     listing.category === "Kitchen" ? "🍳" :
+                     listing.category === "Clothing" ? "🧥" :
+                     listing.category === "Furniture" ? "🪑" :
+                     listing.category === "Transport" ? "🚲" :
+                     listing.category === "Books" ? "📚" :
+                     listing.category === "Bedding" ? "🛏️" : "📦"}
+                  </div>
+                  <h3 className="mb-1 font-medium leading-tight">{listing.title}</h3>
+                  <p className="mb-2 text-xl font-bold text-primary">${listing.price}</p>
+                  <div className="flex flex-wrap gap-1.5">
+                    <Badge variant="secondary">{listing.category}</Badge>
+                    <Badge variant="outline">{conditions[listing.condition] || listing.condition}</Badge>
+                  </div>
+                  {listing.users && (
+                    <div className="mt-3 text-xs text-muted-foreground">
+                      {listing.users.display_name} · ⭐ {listing.users.trust_score}
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            </Link>
+          ))}
+        </div>
+      )}
+
+      {/* Empty State */}
+      {!loading && listings.length === 0 && (
+        <div className="py-12 text-center">
+          <p className="text-4xl mb-3">🛍️</p>
+          <p className="text-lg text-muted-foreground">No listings yet.</p>
+          <p className="text-sm text-muted-foreground mb-4">Be the first to list an item!</p>
+          <Link href="/marketplace/create">
+            <Button>Create a Listing</Button>
+          </Link>
         </div>
       )}
     </div>

@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -13,12 +13,20 @@ const housingOptions = [
   { value: "homestay", label: "Homestay", icon: "👨‍👩‍👧" },
 ]
 
+interface Campus {
+  id: string
+  name: string
+  university_domains?: { university_name: string; country: string }
+}
+
 export default function BlueprintPage() {
   const [housing, setHousing] = useState("")
   const [budgetMin, setBudgetMin] = useState("")
   const [budgetMax, setBudgetMax] = useState("")
   const [arrivalDate, setArrivalDate] = useState("")
   const [isGenerating, setIsGenerating] = useState(false)
+  const [campuses, setCampuses] = useState<Campus[]>([])
+  const [selectedCampus, setSelectedCampus] = useState<string>("")
   const [blueprint, setBlueprint] = useState<{
     categories: { category: string; items: { name: string; description?: string }[] }[]
     climate_info?: { avg_high: number; avg_low: number; precipitation_mm: number; season: string } | null
@@ -26,27 +34,41 @@ export default function BlueprintPage() {
     fallback?: boolean
   } | null>(null)
 
+  useEffect(() => {
+    fetch("/api/campuses")
+      .then(r => r.json())
+      .then(data => { if (data.data) setCampuses(data.data) })
+      .catch(() => {})
+  }, [])
+
   const handleGenerate = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsGenerating(true)
+    setBlueprint(null)
+
+    const user = JSON.parse(localStorage.getItem("movekit_user") || "{}")
+
     try {
       const res = await fetch("/api/blueprint/generate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          university_campus_id: null,
+          university_campus_id: selectedCampus || null,
           housing_type: housing,
           budget_min: Number(budgetMin),
           budget_max: Number(budgetMax),
           arrival_date: arrivalDate,
+          user_id: user.id || null,
         }),
       })
       const data = await res.json()
       if (res.ok) {
         setBlueprint(data)
+      } else {
+        alert(data.error || "Failed to generate blueprint")
       }
-    } catch (err) {
-      console.error("Blueprint generation failed:", err)
+    } catch {
+      alert("Network error. Please try again.")
     } finally {
       setIsGenerating(false)
     }
@@ -70,6 +92,28 @@ export default function BlueprintPage() {
         </CardHeader>
         <CardContent>
           <form onSubmit={handleGenerate} className="space-y-6">
+            {/* Destination Campus */}
+            <div>
+              <label className="mb-2 block text-sm font-medium">Destination University</label>
+              {campuses.length > 0 ? (
+                <select
+                  value={selectedCampus}
+                  onChange={(e) => setSelectedCampus(e.target.value)}
+                  className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+                >
+                  <option value="">Select a university...</option>
+                  {campuses.map((campus) => (
+                    <option key={campus.id} value={campus.id}>
+                      {campus.university_domains?.university_name || campus.name}
+                      {campus.university_domains?.country ? ` (${campus.university_domains.country})` : ""}
+                    </option>
+                  ))}
+                </select>
+              ) : (
+                <p className="text-sm text-muted-foreground">Loading universities...</p>
+              )}
+            </div>
+
             {/* Housing Type */}
             <div>
               <label className="mb-2 block text-sm font-medium">Housing Type</label>
@@ -130,12 +174,12 @@ export default function BlueprintPage() {
             {/* Generate Button */}
             <Button
               type="submit"
-              className="w-full"
+              className="w-full h-11 gradient-primary border-0 text-white"
               disabled={!housing || !budgetMin || !budgetMax || !arrivalDate || isGenerating}
             >
               {isGenerating ? (
                 <span className="flex items-center gap-2">
-                  <span className="animate-spin">⏳</span>
+                  <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />
                   Generating with AI...
                 </span>
               ) : (
@@ -146,33 +190,33 @@ export default function BlueprintPage() {
         </CardContent>
       </Card>
 
-      {/* Info */}
-      {!blueprint && (
-      <Card>
-        <CardContent className="pt-6">
-          <h3 className="mb-3 font-semibold">What you&apos;ll get:</h3>
-          <div className="space-y-2 text-sm text-muted-foreground">
-            <div className="flex items-center gap-2">
-              <Badge variant="secondary">🌡️</Badge> Climate kit based on your arrival month
+      {/* Info (shown before generation) */}
+      {!blueprint && !isGenerating && (
+        <Card>
+          <CardContent className="pt-6">
+            <h3 className="mb-3 font-semibold">What you&apos;ll get:</h3>
+            <div className="space-y-2 text-sm text-muted-foreground">
+              <div className="flex items-center gap-2">
+                <Badge variant="secondary">🌡️</Badge> Climate kit based on your arrival month
+              </div>
+              <div className="flex items-center gap-2">
+                <Badge variant="secondary">🏠</Badge> Housing essentials for your accommodation type
+              </div>
+              <div className="flex items-center gap-2">
+                <Badge variant="secondary">🔌</Badge> Electronics and adapters for your country
+              </div>
+              <div className="flex items-center gap-2">
+                <Badge variant="secondary">🍳</Badge> Kitchen essentials checklist
+              </div>
+              <div className="flex items-center gap-2">
+                <Badge variant="secondary">📝</Badge> Local setup tasks (bank, SIM, transport)
+              </div>
+              <div className="flex items-center gap-2">
+                <Badge variant="secondary">🌍</Badge> Cultural norms and tips
+              </div>
             </div>
-            <div className="flex items-center gap-2">
-              <Badge variant="secondary">🏠</Badge> Housing essentials for your accommodation type
-            </div>
-            <div className="flex items-center gap-2">
-              <Badge variant="secondary">🔌</Badge> Electronics and adapters for your country
-            </div>
-            <div className="flex items-center gap-2">
-              <Badge variant="secondary">🍳</Badge> Kitchen essentials checklist
-            </div>
-            <div className="flex items-center gap-2">
-              <Badge variant="secondary">📝</Badge> Local setup tasks (bank, SIM, transport)
-            </div>
-            <div className="flex items-center gap-2">
-              <Badge variant="secondary">🌍</Badge> Cultural norms and tips
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
       )}
 
       {/* Blueprint Results */}
@@ -180,7 +224,13 @@ export default function BlueprintPage() {
         <div className="space-y-4">
           {blueprint.fallback && (
             <div className="rounded-lg bg-amber-50 border border-amber-200 p-3 text-sm text-amber-800">
-              ⚠️ AI was unavailable — showing a template blueprint. You can still customize it.
+              ⚠️ AI was unavailable — showing a template blueprint. You can still use it as a starting point.
+            </div>
+          )}
+
+          {!blueprint.fallback && (
+            <div className="rounded-lg bg-emerald-50 border border-emerald-200 p-3 text-sm text-emerald-800">
+              ✅ AI-generated blueprint personalized for your destination!
             </div>
           )}
 
