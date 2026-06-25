@@ -1,21 +1,16 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
+import { countries } from "@/lib/data/countries"
 
 type Step = "role" | "details" | "email" | "otp"
 type UserRole = "incoming" | "outgoing"
-
-interface Campus {
-  id: string
-  name: string
-  university_domains?: { university_name: string; country: string; domain: string }
-}
 
 export default function RegisterPage() {
   const router = useRouter()
@@ -25,19 +20,13 @@ export default function RegisterPage() {
   const [lastName, setLastName] = useState("")
   const [email, setEmail] = useState("")
   const [otp, setOtp] = useState("")
-  const [selectedCampus, setSelectedCampus] = useState("")
+  const [universityName, setUniversityName] = useState("")
+  const [universityCity, setUniversityCity] = useState("")
+  const [universityCountry, setUniversityCountry] = useState("")
   const [currentCountry, setCurrentCountry] = useState("")
-  const [campuses, setCampuses] = useState<Campus[]>([])
   const [error, setError] = useState("")
   const [success, setSuccess] = useState("")
   const [isLoading, setIsLoading] = useState(false)
-
-  useEffect(() => {
-    fetch("/api/campuses")
-      .then(r => r.json())
-      .then(data => { if (data.data) setCampuses(data.data) })
-      .catch(() => {})
-  }, [])
 
   const handleRoleSelect = (selectedRole: UserRole) => {
     setRole(selectedRole)
@@ -55,8 +44,12 @@ export default function RegisterPage() {
       setError("Last name is required")
       return
     }
-    if (!selectedCampus) {
-      setError("Please select your university")
+    if (!universityName.trim()) {
+      setError("Please enter your university name")
+      return
+    }
+    if (!universityCountry) {
+      setError("Please select the university country")
       return
     }
     setStep("email")
@@ -128,20 +121,23 @@ export default function RegisterPage() {
             last_name: lastName.trim(),
             role_type: role,
             current_country: currentCountry,
-            campus_id: selectedCampus || null,
+            university_name: universityName.trim(),
+            university_city: universityCity.trim(),
+            university_country: universityCountry,
             profile_completed: true,
           }),
         })
 
-        // Store user with extra info
         const userData = {
           ...data.user,
           display_name: `${firstName.trim()} ${lastName.trim()}`,
           first_name: firstName.trim(),
           last_name: lastName.trim(),
           role_type: role,
-          campus_id: selectedCampus,
           current_country: currentCountry,
+          university_name: universityName.trim(),
+          university_city: universityCity.trim(),
+          university_country: universityCountry,
         }
         localStorage.setItem("movekit_user", JSON.stringify(userData))
       }
@@ -284,32 +280,55 @@ export default function RegisterPage() {
                     <label className="mb-2 block text-sm font-medium">
                       {role === "incoming" ? "Destination University" : "Your University"}
                     </label>
-                    <select
-                      value={selectedCampus}
-                      onChange={(e) => setSelectedCampus(e.target.value)}
-                      className="flex h-11 w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+                    <Input
+                      value={universityName}
+                      onChange={(e) => setUniversityName(e.target.value)}
+                      placeholder="e.g., MIT, LUMS, University of Manchester..."
                       required
-                    >
-                      <option value="">Select university...</option>
-                      {campuses.map((campus) => (
-                        <option key={campus.id} value={campus.id}>
-                          {campus.university_domains?.university_name || campus.name}
-                          {campus.university_domains?.country ? ` (${campus.university_domains.country})` : ""}
-                        </option>
-                      ))}
-                    </select>
+                      className="h-11"
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="mb-2 block text-sm font-medium">University City</label>
+                      <Input
+                        value={universityCity}
+                        onChange={(e) => setUniversityCity(e.target.value)}
+                        placeholder="e.g., Boston, Lahore..."
+                        className="h-11"
+                      />
+                    </div>
+                    <div>
+                      <label className="mb-2 block text-sm font-medium">University Country</label>
+                      <select
+                        value={universityCountry}
+                        onChange={(e) => setUniversityCountry(e.target.value)}
+                        required
+                        className="flex h-11 w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+                      >
+                        <option value="">Select country...</option>
+                        {countries.map((c) => (
+                          <option key={c} value={c}>{c}</option>
+                        ))}
+                      </select>
+                    </div>
                   </div>
 
                   <div>
                     <label className="mb-2 block text-sm font-medium">
-                      {role === "incoming" ? "Coming from (country)" : "Current Location (country)"}
+                      {role === "incoming" ? "Coming from (your country)" : "Your Country"}
                     </label>
-                    <Input
+                    <select
                       value={currentCountry}
                       onChange={(e) => setCurrentCountry(e.target.value)}
-                      placeholder="e.g., Pakistan, India, UK..."
-                      className="h-11"
-                    />
+                      className="flex h-11 w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+                    >
+                      <option value="">Select country...</option>
+                      {countries.map((c) => (
+                        <option key={c} value={c}>{c}</option>
+                      ))}
+                    </select>
                   </div>
 
                   {error && (
@@ -351,9 +370,9 @@ export default function RegisterPage() {
                     />
                   </div>
                   <div className="rounded-lg bg-blue-50 border border-blue-100 p-3 text-xs text-blue-800">
-                    <strong>Tip:</strong> Use the email from{" "}
+                    <strong>Tip:</strong> Use your email from{" "}
                     <Badge variant="secondary" className="text-[10px]">
-                      {campuses.find(c => c.id === selectedCampus)?.university_domains?.university_name || "your university"}
+                      {universityName || "your university"}
                     </Badge>{" "}
                     for faster verification.
                   </div>
