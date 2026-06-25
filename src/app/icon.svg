@@ -1,15 +1,14 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
-  <!-- 3D Cardboard Box -->
-  <!-- Top face -->
-  <polygon points="16,4 28,10 16,16 4,10" fill="#D4915C"/>
-  <!-- Top tape/stripe -->
-  <polygon points="14,4.8 18,4.8 18,15.2 14,15.2" fill="#8B5E3C" opacity="0.6"/>
+  <!-- Blue rounded background -->
+  <rect width="32" height="32" rx="7" fill="#2563eb"/>
+  <!-- 3D Box - top -->
+  <polygon points="16,8 23,11.5 16,15 9,11.5" fill="#D4915C"/>
+  <!-- Tape on top -->
+  <polygon points="15,8.2 17,8.2 17,14.8 15,14.8" fill="#8B5E3C"/>
   <!-- Right face -->
-  <polygon points="16,16 28,10 28,24 16,30" fill="#C17A3A"/>
+  <polygon points="16,15 23,11.5 23,21 16,24.5" fill="#B8723A"/>
   <!-- Left face -->
-  <polygon points="16,16 4,10 4,24 16,30" fill="#E0A86E"/>
-  <!-- Tape on right face -->
-  <polygon points="16,16 16,30 18,29 18,15" fill="#8B5E3C" opacity="0.3"/>
-  <!-- Small label on left face -->
-  <rect x="6" y="20" width="5" height="3.5" fill="#F5E6D3" rx="0.5" transform="skewY(-26.5) translate(0, 13)"/>
+  <polygon points="16,15 9,11.5 9,21 16,24.5" fill="#DBA26E"/>
+  <!-- Label on left face -->
+  <rect x="10" y="17" width="3.5" height="2.5" rx="0.3" fill="#F8EEE4" transform="skewY(-30) translate(0,11.5)"/>
 </svg>

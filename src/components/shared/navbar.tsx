@@ -58,6 +58,16 @@ export function Navbar() {
 
         {/* Desktop right icons */}
         <div className="hidden md:flex ml-auto items-center gap-2">
+          <button
+            onClick={() => {
+              const isDark = document.documentElement.classList.toggle('dark')
+              localStorage.setItem('theme', isDark ? 'dark' : 'light')
+            }}
+            className="p-2 rounded-md hover:bg-muted text-sm"
+            aria-label="Toggle dark mode"
+          >
+            🌙
+          </button>
           <Link href="/notifications" aria-label="Notifications">
             <Button variant="ghost" size="sm">🔔</Button>
           </Link>
