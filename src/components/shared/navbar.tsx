@@ -44,12 +44,16 @@ export function Navbar() {
         </nav>
 
         <div className="ml-auto flex items-center gap-2">
-          <Button variant="ghost" size="sm">
-            🔔
-          </Button>
-          <Button variant="ghost" size="sm">
-            👤
-          </Button>
+          <Link href="/notifications">
+            <Button variant="ghost" size="sm">
+              🔔
+            </Button>
+          </Link>
+          <Link href="/profile">
+            <Button variant="ghost" size="sm">
+              👤
+            </Button>
+          </Link>
         </div>
       </div>
     </header>
