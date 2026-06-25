@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import Link from "next/link"
+import { useProfileGate } from "@/components/shared/profile-gate"
 
 interface ListingDetail {
   id: string
@@ -53,6 +54,7 @@ export default function ListingDetailPage() {
   const [listing, setListing] = useState<ListingDetail | null>(null)
   const [loading, setLoading] = useState(true)
   const [proposing, setProposing] = useState(false)
+  const { canAct, reason } = useProfileGate()
 
   useEffect(() => {
     if (params.id) {
@@ -217,10 +219,13 @@ export default function ListingDetailPage() {
               <Button
                 className="w-full gradient-primary border-0 text-white"
                 onClick={handleContactSeller}
-                disabled={listing.status !== "active"}
+                disabled={listing.status !== "active" || !canAct}
               >
                 💬 Contact Seller
               </Button>
+              {!canAct && reason && (
+                <p className="text-xs text-destructive mt-2 text-center">{reason}</p>
+              )}
             </CardContent>
           </Card>
 
@@ -230,7 +235,7 @@ export default function ListingDetailPage() {
                 variant="outline"
                 className="w-full mb-2"
                 onClick={handleProposeDeal}
-                disabled={listing.status !== "active" || proposing}
+                disabled={listing.status !== "active" || proposing || !canAct}
               >
                 {proposing ? "Proposing..." : "🤝 Propose Deal"}
               </Button>

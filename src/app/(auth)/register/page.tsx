@@ -315,21 +315,26 @@ export default function RegisterPage() {
                     </div>
                   </div>
 
-                  <div>
-                    <label className="mb-2 block text-sm font-medium">
-                      {role === "incoming" ? "Coming from (your country)" : "Your Country"}
-                    </label>
-                    <select
-                      value={currentCountry}
-                      onChange={(e) => setCurrentCountry(e.target.value)}
-                      className="flex h-11 w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
-                    >
-                      <option value="">Select country...</option>
-                      {countries.map((c) => (
-                        <option key={c} value={c}>{c}</option>
-                      ))}
-                    </select>
-                  </div>
+                  {role === "incoming" && (
+                    <div>
+                      <label className="mb-2 block text-sm font-medium">
+                        Where are you coming from?
+                      </label>
+                      <select
+                        value={currentCountry}
+                        onChange={(e) => setCurrentCountry(e.target.value)}
+                        className="flex h-11 w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+                      >
+                        <option value="">Select your home country...</option>
+                        {countries.map((c) => (
+                          <option key={c} value={c}>{c}</option>
+                        ))}
+                      </select>
+                      <p className="mt-1 text-xs text-muted-foreground">
+                        Helps us tailor your blueprint (adapters, visa tips, etc.)
+                      </p>
+                    </div>
+                  )}
 
                   {error && (
                     <div className="rounded-lg bg-destructive/10 p-3 text-sm text-destructive">{error}</div>

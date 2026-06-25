@@ -6,6 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
+import { ProfileGate } from "@/components/shared/profile-gate"
 
 const categories = [
   "Electronics", "Furniture", "Kitchen", "Clothing", "Books",
@@ -69,6 +70,7 @@ export default function CreateListingPage() {
   }
 
   return (
+    <ProfileGate mode="block">
     <div className="mx-auto max-w-2xl space-y-6">
       <div>
         <h1 className="text-2xl font-bold">List an Item</h1>
@@ -210,5 +212,6 @@ export default function CreateListingPage() {
         </CardContent>
       </Card>
     </div>
+    </ProfileGate>
   )
 }
