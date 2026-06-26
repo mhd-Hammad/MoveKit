@@ -11,7 +11,7 @@ export default function MainLayout({
         Skip to content
       </a>
       <Navbar />
-      <main id="main-content" className="container mx-auto px-4 sm:px-6 py-6">
+      <main id="main-content" className="md:ml-52 px-4 sm:px-6 py-6">
         {children}
       </main>
     </div>

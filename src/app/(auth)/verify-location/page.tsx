@@ -5,6 +5,7 @@ import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
+import { BackButton } from "@/components/shared/back-button"
 
 type Status = "idle" | "requesting" | "verifying" | "success" | "error"
 
@@ -170,6 +171,9 @@ export default function VerifyLocationPage() {
             <div className="rounded-lg bg-blue-50 border border-blue-100 p-3 text-xs text-blue-800">
               <strong>🔒 Privacy:</strong> We only store which campus you&apos;re near — never your exact GPS coordinates. Verification is valid for 90 days.
             </div>
+
+            {/* Back link */}
+            <BackButton href="/dashboard" label="Back to Dashboard" />
           </CardContent>
         </Card>
       </div>

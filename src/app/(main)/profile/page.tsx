@@ -43,17 +43,26 @@ export default function ProfilePage() {
       return
     }
     const parsed = JSON.parse(stored)
-
-    // Fetch full profile from API
+    
+    // Fetch full profile from API — validates the user still exists
     fetch(`/api/profile?user_id=${parsed.id}`)
-      .then(r => r.json())
+      .then(r => {
+        if (!r.ok) throw new Error("User not found")
+        return r.json()
+      })
       .then(data => {
         if (data.id) {
           setUser(data)
           setNewName(data.display_name)
+        } else {
+          // User was deleted from DB — clear local storage
+          localStorage.removeItem("movekit_user")
         }
       })
-      .catch(() => setUser(parsed))
+      .catch(() => {
+        // User doesn't exist anymore — clear stale data
+        localStorage.removeItem("movekit_user")
+      })
       .finally(() => setLoading(false))
 
     // Fetch trust breakdown

@@ -7,12 +7,13 @@ import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 
 const navLinks = [
-  { href: "/dashboard", label: "Dashboard", icon: "🏠" },
-  { href: "/blueprint", label: "Blueprint", icon: "📋" },
-  { href: "/marketplace", label: "Marketplace", icon: "🛍️" },
-  { href: "/matching", label: "Matches", icon: "🔗" },
-  { href: "/chat", label: "Chat", icon: "💬" },
-  { href: "/deals", label: "Deals", icon: "🤝" },
+  { href: "/dashboard", label: "Dashboard" },
+  { href: "/blueprint", label: "Blueprint" },
+  { href: "/marketplace", label: "Marketplace" },
+  { href: "/matching", label: "Matches" },
+  { href: "/chat", label: "Chat" },
+  { href: "/deals", label: "Deals" },
+  { href: "/tips", label: "Tips" },
 ]
 
 export function Navbar() {
@@ -20,91 +21,101 @@ export function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false)
 
   return (
-    <header className="sticky top-0 z-50 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="container mx-auto flex h-14 items-center px-4 sm:px-6">
-        <Link href="/dashboard" className="mr-6 flex items-center gap-2">
-          <div className="flex h-7 w-7 items-center justify-center rounded-md gradient-primary">
-            <span className="text-xs text-white">📦</span>
-          </div>
-          <span className="font-bold hidden sm:inline">MoveKit</span>
-        </Link>
+    <>
+      {/* Top header */}
+      <header className="sticky top-0 z-50 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+        <div className="flex h-14 items-center px-4 sm:px-6">
+          <Link href="/dashboard" className="flex items-center gap-2">
+            <div className="flex h-7 w-7 items-center justify-center rounded-md gradient-primary">
+              <span className="text-xs text-white">📦</span>
+            </div>
+            <span className="font-bold">MoveKit</span>
+          </Link>
 
-        {/* Desktop nav */}
-        <nav className="hidden md:flex items-center gap-1" aria-label="Main navigation">
+          <div className="ml-auto flex items-center gap-1">
+            <button
+              onClick={() => {
+                const isDark = document.documentElement.classList.toggle('dark')
+                localStorage.setItem('theme', isDark ? 'dark' : 'light')
+              }}
+              className="p-2 rounded-md hover:bg-muted text-sm"
+              aria-label="Toggle dark mode"
+            >
+              🌙
+            </button>
+            <Link href="/notifications" aria-label="Notifications">
+              <Button variant="ghost" size="sm">🔔</Button>
+            </Link>
+            <Link href="/profile" aria-label="Profile">
+              <Button variant="ghost" size="sm">👤</Button>
+            </Link>
+            <button
+              className="md:hidden p-2 rounded-md hover:bg-muted ml-1"
+              onClick={() => setMobileOpen(!mobileOpen)}
+              aria-label="Toggle navigation menu"
+              aria-expanded={mobileOpen}
+            >
+              {mobileOpen ? "✕" : "☰"}
+            </button>
+          </div>
+        </div>
+      </header>
+
+      {/* Left Sidebar (desktop) */}
+      <aside className="hidden md:flex fixed left-0 top-14 bottom-0 z-40 w-52 flex-col border-r bg-background px-3 py-4" aria-label="Main navigation">
+        <nav className="flex-1 space-y-1">
           {navLinks.map((link) => (
             <Link key={link.href} href={link.href}>
-              <Button
-                variant={pathname.startsWith(link.href) ? "secondary" : "ghost"}
-                size="sm"
-                className={cn("gap-1.5", pathname.startsWith(link.href) && "font-medium")}
+              <div
+                className={cn(
+                  "flex items-center rounded-lg px-3 py-2 text-sm transition-colors",
+                  pathname.startsWith(link.href)
+                    ? "bg-primary/10 text-primary font-medium"
+                    : "text-muted-foreground hover:text-foreground hover:bg-muted"
+                )}
                 aria-current={pathname.startsWith(link.href) ? "page" : undefined}
               >
-                <span className="text-sm" aria-hidden="true">{link.icon}</span>
-                <span>{link.label}</span>
-              </Button>
+                {link.label}
+              </div>
             </Link>
           ))}
         </nav>
 
-        {/* Mobile hamburger */}
-        <button
-          className="md:hidden ml-auto mr-2 p-2 rounded-md hover:bg-muted"
-          onClick={() => setMobileOpen(!mobileOpen)}
-          aria-label="Toggle navigation menu"
-          aria-expanded={mobileOpen}
-        >
-          {mobileOpen ? "✕" : "☰"}
-        </button>
-
-        {/* Desktop right icons */}
-        <div className="hidden md:flex ml-auto items-center gap-2">
-          <button
-            onClick={() => {
-              const isDark = document.documentElement.classList.toggle('dark')
-              localStorage.setItem('theme', isDark ? 'dark' : 'light')
-            }}
-            className="p-2 rounded-md hover:bg-muted text-sm"
-            aria-label="Toggle dark mode"
-          >
-            🌙
-          </button>
-          <Link href="/notifications" aria-label="Notifications">
-            <Button variant="ghost" size="sm">🔔</Button>
-          </Link>
-          <Link href="/profile" aria-label="Profile">
-            <Button variant="ghost" size="sm">👤</Button>
+        <div className="border-t pt-3 space-y-1">
+          <Link href="/policies">
+            <div className="flex items-center rounded-lg px-3 py-2 text-xs text-muted-foreground hover:text-foreground hover:bg-muted transition-colors">
+              Policies
+            </div>
           </Link>
         </div>
-      </div>
+      </aside>
 
-      {/* Mobile menu */}
+      {/* Mobile slide menu */}
       {mobileOpen && (
-        <nav className="md:hidden border-t bg-background px-4 py-3 space-y-1" aria-label="Mobile navigation">
+        <nav className="md:hidden fixed inset-0 top-14 z-40 bg-background px-4 py-4 space-y-1" aria-label="Mobile navigation">
           {navLinks.map((link) => (
             <Link key={link.href} href={link.href} onClick={() => setMobileOpen(false)}>
               <div className={cn(
-                "flex items-center gap-2 rounded-md px-3 py-2 text-sm transition-colors",
-                pathname.startsWith(link.href) ? "bg-secondary font-medium" : "hover:bg-muted"
+                "flex items-center rounded-xl px-4 py-3 text-sm transition-colors",
+                pathname.startsWith(link.href) ? "bg-primary/10 text-primary font-medium" : "hover:bg-muted"
               )}>
-                <span aria-hidden="true">{link.icon}</span>
-                <span>{link.label}</span>
+                {link.label}
               </div>
             </Link>
           ))}
-          <div className="border-t pt-2 mt-2 flex gap-2">
-            <Link href="/notifications" onClick={() => setMobileOpen(false)} className="flex-1">
-              <div className="flex items-center gap-2 rounded-md px-3 py-2 text-sm hover:bg-muted">
-                <span>🔔</span> Notifications
-              </div>
+          <div className="border-t pt-3 mt-3 space-y-1">
+            <Link href="/notifications" onClick={() => setMobileOpen(false)}>
+              <div className="flex items-center rounded-xl px-4 py-3 text-sm hover:bg-muted">Notifications</div>
             </Link>
-            <Link href="/profile" onClick={() => setMobileOpen(false)} className="flex-1">
-              <div className="flex items-center gap-2 rounded-md px-3 py-2 text-sm hover:bg-muted">
-                <span>👤</span> Profile
-              </div>
+            <Link href="/profile" onClick={() => setMobileOpen(false)}>
+              <div className="flex items-center rounded-xl px-4 py-3 text-sm hover:bg-muted">Profile</div>
+            </Link>
+            <Link href="/policies" onClick={() => setMobileOpen(false)}>
+              <div className="flex items-center rounded-xl px-4 py-3 text-sm hover:bg-muted">Policies</div>
             </Link>
           </div>
         </nav>
       )}
-    </header>
+    </>
   )
 }
