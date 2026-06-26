@@ -366,7 +366,7 @@ export default function RegisterPage() {
                           const selected = phoneCodes.find(p => p.code === e.target.value)
                           if (selected) { setPhoneCode(selected); setPhone(""); setPhoneError("") }
                         }}
-                        className="flex h-11 w-28 shrink-0 rounded-md border border-input bg-transparent px-2 py-2 text-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+                        className="flex h-11 w-24 shrink-0 rounded-md border border-input bg-transparent px-2 py-2 text-xs focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
                       >
                         {phoneCodes.map((p) => (
                           <option key={`${p.country}-${p.code}`} value={p.code}>
