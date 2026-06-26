@@ -3,157 +3,130 @@
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-
-const features = [
-  {
-    icon: "🎓",
-    title: "University Verified",
-    description: "Only verified students can access the platform. Trust starts with identity.",
-    color: "bg-blue-50 border-blue-100",
-  },
-  {
-    icon: "🤖",
-    title: "AI Survival Blueprint",
-    description: "Get a personalized packing list and task plan powered by AI for your destination.",
-    color: "bg-violet-50 border-violet-100",
-  },
-  {
-    icon: "🔗",
-    title: "Smart Matching",
-    description: "Automatically matched with outgoing students selling exactly what you need.",
-    color: "bg-emerald-50 border-emerald-100",
-  },
-  {
-    icon: "🛡️",
-    title: "Trust & Safety",
-    description: "Reputation scores, deal badges, and controlled communication keep transactions safe.",
-    color: "bg-amber-50 border-amber-100",
-  },
-  {
-    icon: "💬",
-    title: "Real-time Chat",
-    description: "Negotiate, plan meetups, and confirm deals — all within the platform.",
-    color: "bg-pink-50 border-pink-100",
-  },
-  {
-    icon: "📍",
-    title: "Location Verified",
-    description: "GPS verification ensures sellers are actually near your campus.",
-    color: "bg-cyan-50 border-cyan-100",
-  },
-]
-
-const stats = [
-  { value: "9,000+", label: "Universities Supported" },
-  { value: "100%", label: "Free to Use" },
-  { value: "< 15s", label: "AI Blueprint Generation" },
-  { value: "25km", label: "Match Radius" },
-]
 
 export default function LandingPage() {
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen bg-background">
       {/* Header */}
       <header className="sticky top-0 z-50 border-b bg-background/80 backdrop-blur-md">
         <div className="container mx-auto flex items-center justify-between px-6 py-3">
-          <div className="flex items-center gap-2">
+          <Link href="/" className="flex items-center gap-2">
             <div className="flex h-8 w-8 items-center justify-center rounded-lg gradient-primary">
-              <span className="text-sm text-white">📦</span>
+              <span className="text-sm text-white font-bold">M</span>
             </div>
             <span className="text-lg font-bold">MoveKit</span>
-          </div>
-          <Link href="/login">
-            <Button size="sm">Sign In</Button>
           </Link>
+          <div className="flex items-center gap-3">
+            <Link href="/login">
+              <Button variant="ghost" size="sm">Sign in</Button>
+            </Link>
+            <Link href="/register">
+              <Button size="sm" className="gradient-primary border-0 text-white">Get Started</Button>
+            </Link>
+          </div>
         </div>
       </header>
 
       <main>
-        {/* Hero */}
-        <section className="gradient-hero py-24 lg:py-32">
-          <div className="container mx-auto px-6 text-center">
-            <Badge variant="secondary" className="mb-6 px-4 py-1.5 text-sm">
-              🏆 Built for Youth Code × AI Hackathon
-            </Badge>
-            <h1 className="mx-auto max-w-4xl text-4xl font-bold tracking-tight sm:text-5xl lg:text-6xl">
-              Relocating to University?
-              <br />
-              <span className="gradient-text">We&apos;ve Got Your Kit.</span>
-            </h1>
-            <p className="mx-auto mt-6 max-w-2xl text-lg text-muted-foreground leading-relaxed">
-              MoveKit is an AI-powered platform that connects incoming students with outgoing students 
-              selling exactly what they need. Verified trust. Smart matching. Zero guesswork.
-            </p>
-            <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
-              <Link href="/register">
-                <Button size="lg" className="gradient-primary border-0 px-8 text-white shadow-lg shadow-blue-500/25 hover:shadow-blue-500/40 transition-all">
-                  Get Started Free
-                </Button>
-              </Link>
-              <Link href="/marketplace">
-                <Button variant="outline" size="lg" className="px-8">
-                  Browse Marketplace
-                </Button>
-              </Link>
+        {/* Hero — Mercari-inspired: clean, big headline, clear value prop */}
+        <section className="gradient-hero py-20 lg:py-28">
+          <div className="container mx-auto px-6">
+            <div className="max-w-3xl mx-auto text-center">
+              <div className="inline-flex items-center gap-2 rounded-full bg-primary-50 border border-primary-200 px-4 py-1.5 text-sm text-primary-700 mb-6">
+                <span className="h-2 w-2 rounded-full bg-primary-500 animate-pulse" />
+                Built for university students
+              </div>
+              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight leading-tight">
+                Your campus move,
+                <br />
+                <span className="gradient-text">sorted.</span>
+              </h1>
+              <p className="mt-5 text-lg text-muted-foreground max-w-xl mx-auto leading-relaxed">
+                AI-powered relocation planning meets a verified student marketplace. 
+                Get matched with outgoing students selling exactly what you need.
+              </p>
+              <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-3">
+                <Link href="/register">
+                  <Button size="lg" className="gradient-primary border-0 text-white px-8 shadow-lg shadow-primary-600/20 hover:shadow-primary-600/40 transition-all">
+                    Start free
+                  </Button>
+                </Link>
+                <Link href="/marketplace">
+                  <Button size="lg" variant="outline" className="px-8">
+                    Browse marketplace
+                  </Button>
+                </Link>
+              </div>
             </div>
 
-            {/* Stats */}
-            <div className="mx-auto mt-16 grid max-w-2xl grid-cols-2 gap-4 sm:grid-cols-4">
-              {stats.map((stat) => (
-                <div key={stat.label} className="rounded-xl border bg-card p-4 shadow-sm">
-                  <p className="text-2xl font-bold text-primary">{stat.value}</p>
-                  <p className="text-xs text-muted-foreground">{stat.label}</p>
+            {/* Trust indicators — Airbnb-inspired */}
+            <div className="mt-14 grid grid-cols-2 sm:grid-cols-4 gap-4 max-w-2xl mx-auto">
+              {[
+                { value: "Verified", label: "University students only" },
+                { value: "AI-powered", label: "Personalized checklists" },
+                { value: "< 25km", label: "Local matches" },
+                { value: "Free", label: "No fees, ever" },
+              ].map((stat) => (
+                <div key={stat.label} className="text-center p-3 rounded-xl bg-card border">
+                  <p className="font-bold text-primary-700">{stat.value}</p>
+                  <p className="text-[11px] text-muted-foreground mt-0.5">{stat.label}</p>
                 </div>
               ))}
             </div>
           </div>
         </section>
 
-        {/* How it works */}
-        <section className="border-t py-20">
+        {/* How it works — Duolingo-inspired: step-by-step, rewarding */}
+        <section className="py-16 border-t">
           <div className="container mx-auto px-6">
-            <div className="text-center">
-              <Badge variant="outline" className="mb-4">How It Works</Badge>
-              <h2 className="text-3xl font-bold">Three steps to a smooth move</h2>
-            </div>
-            <div className="mt-12 grid gap-8 md:grid-cols-3">
-              {[
-                { step: "1", title: "Verify & Plan", desc: "Sign up with your university email, verify your location, and get an AI-generated survival blueprint tailored to your destination.", icon: "🎯" },
-                { step: "2", title: "Match & Connect", desc: "Get matched with nearby outgoing students selling items from your checklist. Chat securely in-app to negotiate.", icon: "🤝" },
-                { step: "3", title: "Deal & Settle", desc: "Lock in deals, meet up, confirm exchanges. Both parties earn trust badges. Welcome to campus!", icon: "✨" },
-              ].map((item) => (
-                <div key={item.step} className="relative rounded-2xl border bg-card p-8 shadow-sm transition-shadow hover:shadow-md">
-                  <div className="absolute -top-4 left-6">
-                    <div className="flex h-8 w-8 items-center justify-center rounded-full gradient-primary text-sm font-bold text-white shadow-lg">
+            <h2 className="text-2xl font-bold text-center mb-10">How it works</h2>
+            <div className="max-w-3xl mx-auto">
+              <div className="relative">
+                {/* Vertical line */}
+                <div className="absolute left-6 top-0 bottom-0 w-0.5 bg-border hidden sm:block" />
+
+                {[
+                  { step: "1", title: "Verify your university email", desc: "Only real students get access. Quick OTP verification proves you belong.", color: "bg-primary-600" },
+                  { step: "2", title: "Get your AI survival blueprint", desc: "Tell us where you're going, your housing type, and budget. AI generates a personalized packing list with climate and cultural tips.", color: "bg-primary-500" },
+                  { step: "3", title: "Browse matched listings", desc: "Our algorithm finds items from nearby outgoing students that match your blueprint. Ranked by distance, price, and seller trust.", color: "bg-accent-500" },
+                  { step: "4", title: "Deal, meet, done", desc: "Propose a deal, chat in-app, meet up, exchange cash for items. Both confirm — you earn trust badges.", color: "bg-accent-600" },
+                ].map((item) => (
+                  <div key={item.step} className="flex gap-4 mb-8 last:mb-0">
+                    <div className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-full ${item.color} text-white font-bold text-lg shadow-md relative z-10`}>
                       {item.step}
                     </div>
+                    <div className="pt-1">
+                      <h3 className="font-semibold">{item.title}</h3>
+                      <p className="text-sm text-muted-foreground mt-1 leading-relaxed">{item.desc}</p>
+                    </div>
                   </div>
-                  <div className="mt-4">
-                    <span className="text-3xl">{item.icon}</span>
-                    <h3 className="mt-3 text-lg font-semibold">{item.title}</h3>
-                    <p className="mt-2 text-sm text-muted-foreground leading-relaxed">{item.desc}</p>
-                  </div>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
           </div>
         </section>
 
-        {/* Features */}
-        <section className="border-t bg-muted/30 py-20">
+        {/* Features — Mercari card style */}
+        <section className="py-16 bg-muted/30 border-t">
           <div className="container mx-auto px-6">
-            <div className="text-center">
-              <Badge variant="outline" className="mb-4">Features</Badge>
-              <h2 className="text-3xl font-bold">Everything you need to relocate smart</h2>
-            </div>
-            <div className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {features.map((feature) => (
-                <Card key={feature.title} className={`border ${feature.color} transition-all hover:shadow-md hover:-translate-y-0.5`}>
-                  <CardContent className="pt-6">
-                    <div className="mb-3 text-3xl">{feature.icon}</div>
-                    <h3 className="mb-2 font-semibold">{feature.title}</h3>
-                    <p className="text-sm text-muted-foreground leading-relaxed">{feature.description}</p>
+            <h2 className="text-2xl font-bold text-center mb-2">Built for trust</h2>
+            <p className="text-center text-muted-foreground mb-10">Every feature designed to make peer-to-peer safe and easy.</p>
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 max-w-4xl mx-auto">
+              {[
+                { title: "University verified", desc: "OTP email verification ensures only real students access the platform.", tag: "Identity" },
+                { title: "GPS location check", desc: "Confirm sellers are actually near your campus before you deal.", tag: "Safety" },
+                { title: "Trust scores", desc: "Every user earns reputation through verified deals and responsive behavior.", tag: "Trust" },
+                { title: "Scam protection", desc: "Suspicious messages are blocked. Contact sharing is flagged. Cash only.", tag: "Safety" },
+                { title: "Smart matching", desc: "AI matches your blueprint needs with nearby listings. Weighted by distance, price, and trust.", tag: "AI" },
+                { title: "Deal badges", desc: "Complete deals to earn badges. Higher trust = higher ranking in search.", tag: "Gamification" },
+              ].map((feature) => (
+                <Card key={feature.title} className="border hover:shadow-md hover:-translate-y-0.5 transition-all">
+                  <CardContent className="pt-5 pb-5">
+                    <span className="inline-block text-[10px] font-medium px-2 py-0.5 rounded-full bg-primary-50 text-primary-700 border border-primary-200 mb-3">
+                      {feature.tag}
+                    </span>
+                    <h3 className="font-semibold text-sm">{feature.title}</h3>
+                    <p className="text-xs text-muted-foreground mt-1.5 leading-relaxed">{feature.desc}</p>
                   </CardContent>
                 </Card>
               ))}
@@ -161,17 +134,17 @@ export default function LandingPage() {
           </div>
         </section>
 
-        {/* CTA */}
-        <section className="py-20">
+        {/* Social proof / CTA */}
+        <section className="py-16">
           <div className="container mx-auto px-6">
-            <div className="mx-auto max-w-2xl rounded-2xl gradient-primary p-12 text-center text-white shadow-xl shadow-blue-500/20">
-              <h2 className="text-3xl font-bold">Ready to Move Smart?</h2>
-              <p className="mt-3 text-blue-100">
-                Join verified students already using MoveKit to simplify their relocation.
+            <div className="max-w-xl mx-auto rounded-2xl gradient-primary p-10 text-center text-white shadow-xl">
+              <h2 className="text-2xl font-bold">Ready to move smart?</h2>
+              <p className="mt-2 text-primary-100 text-sm">
+                Join verified students simplifying their university relocation.
               </p>
               <Link href="/register">
-                <Button size="lg" className="mt-8 bg-white text-blue-700 hover:bg-blue-50 shadow-lg">
-                  Create Your Account →
+                <Button size="lg" className="mt-6 bg-white text-primary-700 hover:bg-primary-50 shadow-lg font-medium">
+                  Create your account
                 </Button>
               </Link>
             </div>
@@ -181,9 +154,17 @@ export default function LandingPage() {
 
       {/* Footer */}
       <footer className="border-t py-8">
-        <div className="container mx-auto px-6 text-center text-sm text-muted-foreground">
-          <p>© 2026 MoveKit — Campus Relocation Network</p>
-          <p className="mt-1">Built with Next.js, Supabase, Groq AI & ❤️</p>
+        <div className="container mx-auto px-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-muted-foreground">
+          <div className="flex items-center gap-2">
+            <div className="flex h-6 w-6 items-center justify-center rounded gradient-primary">
+              <span className="text-[10px] text-white font-bold">M</span>
+            </div>
+            <span>MoveKit © 2026</span>
+          </div>
+          <div className="flex gap-4">
+            <Link href="/policies" className="hover:text-foreground transition-colors">Privacy</Link>
+            <Link href="/policies" className="hover:text-foreground transition-colors">Terms</Link>
+          </div>
         </div>
       </footer>
     </div>
