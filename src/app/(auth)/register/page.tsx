@@ -23,6 +23,10 @@ export default function RegisterPage() {
   const [phone, setPhone] = useState("")
   const [phoneCode, setPhoneCode] = useState<PhoneCode>(phoneCodes[0])
   const [phoneError, setPhoneError] = useState("")
+  const [password, setPassword] = useState("")
+  const [confirmPassword, setConfirmPassword] = useState("")
+  const [showPassword, setShowPassword] = useState(false)
+  const [passwordErrors, setPasswordErrors] = useState<string[]>([])
   const [otp, setOtp] = useState("")
   const [universityName, setUniversityName] = useState("")
   const [universityCity, setUniversityCity] = useState("")
@@ -72,6 +76,20 @@ export default function RegisterPage() {
         return
       }
     }
+    // Validate password
+    const pwErrors: string[] = []
+    if (password.length < 8) pwErrors.push("At least 8 characters")
+    if (!/[A-Z]/.test(password)) pwErrors.push("One uppercase letter")
+    if (!/[a-z]/.test(password)) pwErrors.push("One lowercase letter")
+    if (!/[0-9]/.test(password)) pwErrors.push("One number")
+    if (!/[^A-Za-z0-9]/.test(password)) pwErrors.push("One special character")
+    if (password !== confirmPassword) pwErrors.push("Passwords don't match")
+    if (pwErrors.length > 0) {
+      setPasswordErrors(pwErrors)
+      setError("Please enter a strong password")
+      return
+    }
+    setPasswordErrors([])
     setStep("email")
   }
 
@@ -90,7 +108,7 @@ export default function RegisterPage() {
       const res = await fetch("/api/auth/send-otp", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email }),
+        body: JSON.stringify({ email, is_registration: true }),
       })
       const data = await res.json()
       if (!res.ok) {
@@ -121,7 +139,7 @@ export default function RegisterPage() {
       const res = await fetch("/api/auth/verify-otp", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, otp }),
+        body: JSON.stringify({ email, otp, password }),
       })
       const data = await res.json()
       if (!res.ok) {
@@ -253,8 +271,8 @@ export default function RegisterPage() {
                     </div>
                   </div>
                 </button>
-                <p className="text-center text-xs text-muted-foreground pt-2">
-                  Already have an account? <Link href="/login" className="text-primary hover:underline">Sign in</Link>
+                <p className="text-center text-sm text-muted-foreground pt-2">
+                  Already have an account? <Link href="/login" className="text-primary hover:underline font-medium">Sign in</Link>
                 </p>
               </CardContent>
             </Card>
@@ -397,6 +415,62 @@ export default function RegisterPage() {
                       Required for chat and deals. Never shared publicly.
                     </p>
                   </div>
+
+                  {/* Password */}
+                  <div>
+                    <label className="mb-2 block text-sm font-medium">Password</label>
+                    <div className="relative">
+                      <Input
+                        type={showPassword ? "text" : "password"}
+                        value={password}
+                        onChange={(e) => { setPassword(e.target.value); setPasswordErrors([]) }}
+                        placeholder="Create a strong password"
+                        required
+                        className="h-11 pr-10"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword(!showPassword)}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                        aria-label={showPassword ? "Hide password" : "Show password"}
+                      >
+                        {showPassword ? "🙈" : "👁️"}
+                      </button>
+                    </div>
+                    <div className="mt-1.5 flex flex-wrap gap-x-3 gap-y-0.5 text-[11px]">
+                      <span className={password.length >= 8 ? "text-green-600 font-medium" : "text-gray-400"}>
+                        {password.length >= 8 ? "✓" : "○"} 8+ chars
+                      </span>
+                      <span className={/[A-Z]/.test(password) ? "text-green-600 font-medium" : "text-gray-400"}>
+                        {/[A-Z]/.test(password) ? "✓" : "○"} Uppercase
+                      </span>
+                      <span className={/[a-z]/.test(password) ? "text-green-600 font-medium" : "text-gray-400"}>
+                        {/[a-z]/.test(password) ? "✓" : "○"} Lowercase
+                      </span>
+                      <span className={/[0-9]/.test(password) ? "text-green-600 font-medium" : "text-gray-400"}>
+                        {/[0-9]/.test(password) ? "✓" : "○"} Number
+                      </span>
+                      <span className={/[^A-Za-z0-9]/.test(password) ? "text-green-600 font-medium" : "text-gray-400"}>
+                        {/[^A-Za-z0-9]/.test(password) ? "✓" : "○"} Special
+                      </span>
+                    </div>
+                  </div>
+                  <div>
+                    <label className="mb-2 block text-sm font-medium">Confirm Password</label>
+                    <div className="relative">
+                      <Input
+                        type={showPassword ? "text" : "password"}
+                        value={confirmPassword}
+                        onChange={(e) => setConfirmPassword(e.target.value)}
+                        placeholder="Re-enter password"
+                        required
+                        className="h-11 pr-10"
+                      />
+                    </div>
+                  </div>
+                  {passwordErrors.includes("Passwords don't match") && confirmPassword.length > 0 && (
+                    <p className="text-xs text-destructive">Passwords don&apos;t match</p>
+                  )}
 
                   {error && (
                     <div className="rounded-lg bg-destructive/10 p-3 text-sm text-destructive">{error}</div>

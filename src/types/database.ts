@@ -6,11 +6,14 @@
 // --- USERS & AUTH ---
 
 export type UserRole = 'user' | 'admin'
+export type UserRoleType = 'incoming' | 'outgoing'
 
 export interface User {
   id: string
   email: string
   display_name: string
+  first_name: string
+  last_name: string
   university_domain: string
   email_verified: boolean
   document_verified: boolean
@@ -19,6 +22,10 @@ export interface User {
   location_verified_at: string | null
   trust_score: number
   role: UserRole
+  role_type: UserRoleType
+  current_country: string
+  profile_completed: boolean
+  password_hash: string
   created_at: string
   updated_at: string
   wellness_opt_out: boolean

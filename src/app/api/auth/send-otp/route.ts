@@ -28,6 +28,23 @@ export async function POST(req: NextRequest) {
 
     const supabase = createAdminClient()
 
+    // Check if this is a registration attempt and user already exists
+    const isRegistration = body.is_registration === true
+    if (isRegistration) {
+      const { data: existingUser } = await supabase
+        .from('users')
+        .select('id')
+        .eq('email', email)
+        .single()
+
+      if (existingUser) {
+        return NextResponse.json(
+          { error: 'An account with this email already exists. Please sign in instead.' },
+          { status: 409 }
+        )
+      }
+    }
+
     // Check if locked (too many attempts)
     const { data: existingOtp } = await supabase
       .from('otp_records')

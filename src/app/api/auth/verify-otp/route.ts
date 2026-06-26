@@ -100,10 +100,16 @@ export async function POST(req: NextRequest) {
     let user
 
     if (existingUser) {
-      // Existing user — just sign them in (no duplicate creation)
+      // Existing user — just sign them in
       user = existingUser
     } else {
-      // New user — create account (only happens via /register flow)
+      // New user — create account
+      // Hash password if provided
+      let passwordHash = ''
+      if (body.password) {
+        passwordHash = await bcrypt.hash(body.password, 10)
+      }
+
       const { data: newUser, error: createError } = await supabase
         .from('users')
         .insert({
@@ -116,6 +122,7 @@ export async function POST(req: NextRequest) {
           trust_score: 20,
           role: 'user',
           wellness_opt_out: false,
+          password_hash: passwordHash,
         })
         .select()
         .single()
