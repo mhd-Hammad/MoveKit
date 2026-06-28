@@ -9,6 +9,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge"
 import { countries } from "@/lib/data/countries"
 import { phoneCodes, validatePhoneNumber, type PhoneCode } from "@/lib/data/phone-codes"
+import { CustomSelect } from "@/components/ui/custom-select"
 
 type Step = "role" | "details" | "email" | "otp"
 type UserRole = "incoming" | "outgoing"
@@ -83,12 +84,16 @@ export default function RegisterPage() {
     if (!/[a-z]/.test(password)) pwErrors.push("One lowercase letter")
     if (!/[0-9]/.test(password)) pwErrors.push("One number")
     if (!/[^A-Za-z0-9]/.test(password)) pwErrors.push("One special character")
-    if (password !== confirmPassword) pwErrors.push("Passwords don't match")
     if (pwErrors.length > 0) {
       setPasswordErrors(pwErrors)
       setError("Please enter a strong password")
       return
     }
+    if (password !== confirmPassword) {
+      setError("Passwords don't match")
+      return
+    }
+    setPasswordErrors([])
     setPasswordErrors([])
     setStep("email")
   }
@@ -147,9 +152,23 @@ export default function RegisterPage() {
         return
       }
 
-      // Update profile with collected info
+      // Save to localStorage IMMEDIATELY so user is "logged in"
+      const userData = {
+        ...data.user,
+        display_name: `${firstName.trim()} ${lastName.trim()}`,
+        first_name: firstName.trim(),
+        last_name: lastName.trim(),
+        role_type: role,
+        current_country: currentCountry,
+        university_name: universityName.trim(),
+        university_city: universityCity.trim(),
+        university_country: universityCountry,
+      }
+      localStorage.setItem("movekit_user", JSON.stringify(userData))
+
+      // Then update profile in background (non-blocking)
       if (data.user?.id) {
-        await fetch("/api/profile", {
+        fetch("/api/profile", {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
@@ -165,20 +184,7 @@ export default function RegisterPage() {
             phone_number: `${phoneCode.code} ${phone.trim()}`,
             profile_completed: true,
           }),
-        })
-
-        const userData = {
-          ...data.user,
-          display_name: `${firstName.trim()} ${lastName.trim()}`,
-          first_name: firstName.trim(),
-          last_name: lastName.trim(),
-          role_type: role,
-          current_country: currentCountry,
-          university_name: universityName.trim(),
-          university_city: universityCity.trim(),
-          university_country: universityCountry,
-        }
-        localStorage.setItem("movekit_user", JSON.stringify(userData))
+        }).catch(() => {}) // Don't block on this
       }
 
       setSuccess("✓ Account created! Redirecting...")
@@ -340,17 +346,12 @@ export default function RegisterPage() {
                     </div>
                     <div>
                       <label className="mb-2 block text-sm font-medium">University Country</label>
-                      <select
+                      <CustomSelect
                         value={universityCountry}
-                        onChange={(e) => setUniversityCountry(e.target.value)}
-                        required
-                        className="flex h-11 w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
-                      >
-                        <option value="">Select country...</option>
-                        {countries.map((c) => (
-                          <option key={c} value={c}>{c}</option>
-                        ))}
-                      </select>
+                        onChange={(val) => setUniversityCountry(val)}
+                        options={countries.map(c => ({ value: c, label: c }))}
+                        placeholder="Select country..."
+                      />
                     </div>
                   </div>
 
@@ -359,16 +360,12 @@ export default function RegisterPage() {
                       <label className="mb-2 block text-sm font-medium">
                         Where are you coming from?
                       </label>
-                      <select
+                      <CustomSelect
                         value={currentCountry}
-                        onChange={(e) => setCurrentCountry(e.target.value)}
-                        className="flex h-11 w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
-                      >
-                        <option value="">Select your home country...</option>
-                        {countries.map((c) => (
-                          <option key={c} value={c}>{c}</option>
-                        ))}
-                      </select>
+                        onChange={(val) => setCurrentCountry(val)}
+                        options={countries.map(c => ({ value: c, label: c }))}
+                        placeholder="Select your home country..."
+                      />
                       <p className="mt-1 text-xs text-muted-foreground">
                         Helps us tailor your blueprint (adapters, visa tips, etc.)
                       </p>
@@ -561,7 +558,7 @@ export default function RegisterPage() {
                       className="h-14 text-center text-2xl tracking-[0.5em] font-mono"
                     />
                     <p className="mt-2 text-xs text-muted-foreground text-center">
-                      Code expires in 5 minutes
+                      Code expires in 5 minutes · 3 attempts max
                     </p>
                   </div>
                   {error && (
@@ -570,10 +567,34 @@ export default function RegisterPage() {
                   {success && (
                     <div className="rounded-lg bg-emerald-50 p-3 text-sm text-emerald-700">{success}</div>
                   )}
-                  <Button type="submit" className="w-full h-11 gradient-primary border-0 text-white" disabled={isLoading}>
-                    {isLoading ? "Verifying..." : "Create Account"}
-                  </Button>
-                  <Button type="button" variant="ghost" className="w-full" onClick={() => setStep("email")}>
+                  {error && (error.includes("expired") || error.includes("locked")) ? (
+                    <Button
+                      type="button"
+                      className="w-full h-11 gradient-primary border-0 text-white"
+                      disabled={isLoading}
+                      onClick={async () => {
+                        setError(""); setIsLoading(true)
+                        try {
+                          const res = await fetch("/api/auth/send-otp", {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({ email, is_registration: true }),
+                          })
+                          const data = await res.json()
+                          if (res.ok) { setSuccess("New code sent!"); setOtp("") }
+                          else setError(data.error)
+                        } catch { setError("Network error") }
+                        setIsLoading(false)
+                      }}
+                    >
+                      {isLoading ? "Sending..." : "Resend Code"}
+                    </Button>
+                  ) : (
+                    <Button type="submit" className="w-full h-11 gradient-primary border-0 text-white" disabled={isLoading}>
+                      {isLoading ? "Verifying..." : "Create Account"}
+                    </Button>
+                  )}
+                  <Button type="button" variant="ghost" className="w-full" onClick={() => { setStep("email"); setError(""); setOtp("") }}>
                     ← Use different email
                   </Button>
                 </form>

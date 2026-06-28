@@ -5,6 +5,7 @@ import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
+import { Logo } from "@/components/shared/logo"
 
 const navLinks = [
   { href: "/dashboard", label: "Dashboard" },
@@ -26,10 +27,7 @@ export function Navbar() {
       <header className="sticky top-0 z-50 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="flex h-14 items-center px-4 sm:px-6">
           <Link href="/dashboard" className="flex items-center gap-2">
-            <div className="flex h-7 w-7 items-center justify-center rounded-md gradient-primary">
-              <span className="text-xs text-white">📦</span>
-            </div>
-            <span className="font-bold">MoveKit</span>
+            <Logo />
           </Link>
 
           <div className="ml-auto flex items-center gap-1">

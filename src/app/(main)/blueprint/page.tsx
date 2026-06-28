@@ -13,20 +13,13 @@ const housingOptions = [
   { value: "homestay", label: "Homestay", icon: "👨‍👩‍👧" },
 ]
 
-interface Campus {
-  id: string
-  name: string
-  university_domains?: { university_name: string; country: string }
-}
-
 export default function BlueprintPage() {
   const [housing, setHousing] = useState("")
   const [budgetMin, setBudgetMin] = useState("")
   const [budgetMax, setBudgetMax] = useState("")
   const [arrivalDate, setArrivalDate] = useState("")
   const [isGenerating, setIsGenerating] = useState(false)
-  const [campuses, setCampuses] = useState<Campus[]>([])
-  const [selectedCampus, setSelectedCampus] = useState<string>("")
+  const [universityName, setUniversityName] = useState("")
   const [blueprint, setBlueprint] = useState<{
     categories: { category: string; items: { name: string; description?: string }[] }[]
     climate_info?: { avg_high: number; avg_low: number; precipitation_mm: number; season: string } | null
@@ -35,10 +28,8 @@ export default function BlueprintPage() {
   } | null>(null)
 
   useEffect(() => {
-    fetch("/api/campuses")
-      .then(r => r.json())
-      .then(data => { if (data.data) setCampuses(data.data) })
-      .catch(() => {})
+    const user = JSON.parse(localStorage.getItem("movekit_user") || "{}")
+    if (user.university_name) setUniversityName(user.university_name)
   }, [])
 
   const handleGenerate = async (e: React.FormEvent) => {
@@ -53,7 +44,8 @@ export default function BlueprintPage() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          university_campus_id: selectedCampus || null,
+          university_campus_id: null,
+          university_name: universityName,
           housing_type: housing,
           budget_min: Number(budgetMin),
           budget_max: Number(budgetMax),
@@ -92,26 +84,18 @@ export default function BlueprintPage() {
         </CardHeader>
         <CardContent>
           <form onSubmit={handleGenerate} className="space-y-6">
-            {/* Destination Campus */}
+            {/* Destination University */}
             <div>
               <label className="mb-2 block text-sm font-medium">Destination University</label>
-              {campuses.length > 0 ? (
-                <select
-                  value={selectedCampus}
-                  onChange={(e) => setSelectedCampus(e.target.value)}
-                  className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
-                >
-                  <option value="">Select a university...</option>
-                  {campuses.map((campus) => (
-                    <option key={campus.id} value={campus.id}>
-                      {campus.university_domains?.university_name || campus.name}
-                      {campus.university_domains?.country ? ` (${campus.university_domains.country})` : ""}
-                    </option>
-                  ))}
-                </select>
-              ) : (
-                <p className="text-sm text-muted-foreground">Loading universities...</p>
-              )}
+              <Input
+                value={universityName}
+                onChange={(e) => setUniversityName(e.target.value)}
+                placeholder="e.g., MIT, LUMS, UCL..."
+                className="h-9"
+              />
+              <p className="mt-1 text-xs text-muted-foreground">
+                Pre-filled from your profile. Edit if generating for a different destination.
+              </p>
             </div>
 
             {/* Housing Type */}

@@ -1,7 +1,7 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
-  <!-- Blue rounded background -->
-  <rect width="32" height="32" rx="7" fill="#2563eb"/>
-  <!-- 3D Box - top -->
+  <!-- Teal rounded background -->
+  <rect width="32" height="32" rx="7" fill="#0D9488"/>
+  <!-- 3D Box - top face -->
   <polygon points="16,8 23,11.5 16,15 9,11.5" fill="#D4915C"/>
   <!-- Tape on top -->
   <polygon points="15,8.2 17,8.2 17,14.8 15,14.8" fill="#8B5E3C"/>
@@ -9,6 +9,6 @@
   <polygon points="16,15 23,11.5 23,21 16,24.5" fill="#B8723A"/>
   <!-- Left face -->
   <polygon points="16,15 9,11.5 9,21 16,24.5" fill="#DBA26E"/>
-  <!-- Label on left face -->
-  <rect x="10" y="17" width="3.5" height="2.5" rx="0.3" fill="#F8EEE4" transform="skewY(-30) translate(0,11.5)"/>
+  <!-- Small label -->
+  <rect x="10.5" y="18" width="3" height="2" rx="0.3" fill="#F8EEE4" transform="skewY(-30) translate(0,11.5)"/>
 </svg>

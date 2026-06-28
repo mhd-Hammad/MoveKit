@@ -3,6 +3,7 @@
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
+import { Logo } from "@/components/shared/logo"
 
 export default function LandingPage() {
   return (
@@ -11,10 +12,7 @@ export default function LandingPage() {
       <header className="sticky top-0 z-50 border-b bg-background/80 backdrop-blur-md">
         <div className="container mx-auto flex items-center justify-between px-6 py-3">
           <Link href="/" className="flex items-center gap-2">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg gradient-primary">
-              <span className="text-sm text-white font-bold">M</span>
-            </div>
-            <span className="text-lg font-bold">MoveKit</span>
+            <Logo />
           </Link>
           <div className="flex items-center gap-3">
             <Link href="/login">
@@ -156,10 +154,7 @@ export default function LandingPage() {
       <footer className="border-t py-8">
         <div className="container mx-auto px-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-muted-foreground">
           <div className="flex items-center gap-2">
-            <div className="flex h-6 w-6 items-center justify-center rounded gradient-primary">
-              <span className="text-[10px] text-white font-bold">M</span>
-            </div>
-            <span>MoveKit © 2026</span>
+            <Logo size="sm" />
           </div>
           <div className="flex gap-4">
             <Link href="/policies" className="hover:text-foreground transition-colors">Privacy</Link>

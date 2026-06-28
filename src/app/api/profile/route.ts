@@ -14,7 +14,7 @@ export async function GET(req: NextRequest) {
 
     const { data: user, error } = await supabase
       .from('users')
-      .select('*, campuses(name, university_domains(university_name, domain))')
+      .select('*')
       .eq('id', userId)
       .single()
 
