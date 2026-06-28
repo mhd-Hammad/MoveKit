@@ -128,7 +128,7 @@ export default function DashboardPage() {
       <div className="grid grid-cols-3 gap-3">
         <Card className="text-center">
           <CardContent className="py-5">
-            <p className="text-3xl font-bold text-primary">{user.trust_score}</p>
+            <p className="text-3xl font-bold text-primary">{user.trust_score}<span className="text-base text-muted-foreground font-normal">/100</span></p>
             <p className="text-[11px] text-muted-foreground mt-1">Trust Score</p>
           </CardContent>
         </Card>

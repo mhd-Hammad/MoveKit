@@ -85,6 +85,11 @@ export function Navbar() {
               Policies
             </div>
           </Link>
+          <Link href="/verify-location">
+            <div className="flex items-center rounded-lg px-3 py-2 text-xs text-muted-foreground hover:text-foreground hover:bg-muted transition-colors">
+              Verify Location
+            </div>
+          </Link>
         </div>
       </aside>
 
